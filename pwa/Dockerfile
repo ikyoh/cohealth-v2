@@ -11,7 +11,7 @@ FROM node_upstream AS base
 WORKDIR /srv/app
 
 RUN npm install -g corepack@latest && \
-    corepack enable && \
+	corepack enable && \
 	corepack prepare --activate pnpm@latest && \
 	pnpm config -g set store-dir /.pnpm-store
 
@@ -51,8 +51,8 @@ ENV NODE_ENV production
 # Delete the following line in case you want to enable telemetry during runtime.
 ENV NEXT_TELEMETRY_DISABLED 1
 
-RUN addgroup --gid 1001 nodejs; \
-	adduser --uid 1001 nextjs
+RUN addgroup --gid 1001 nodejs && \
+	adduser --uid 1001 --ingroup nodejs --disabled-password --gecos "" nextjs
 
 COPY --from=builder --link /srv/app/public ./public
 
