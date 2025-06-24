@@ -41,7 +41,6 @@ COPY --link . .
 RUN	pnpm install --frozen-lockfile --offline && \
 	pnpm run build
 
-
 # Production image, copy all the files and run next
 FROM node_upstream AS prod
 
