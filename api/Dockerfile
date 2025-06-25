@@ -24,6 +24,8 @@ RUN apt-get update && apt-get install --no-install-recommends -y \
 	file \
 	gettext \
 	git \
+	libzip-dev \
+	libicu-dev \
 	&& rm -rf /var/lib/apt/lists/*
 
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
@@ -31,11 +33,11 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 
 RUN set -eux; \
 	install-php-extensions \
-		@composer \
-		apcu \
-		intl \
-		opcache \
-		zip \
+	@composer \
+	apcu \
+	intl \
+	opcache \
+	zip \
 	;
 
 ###> recipes ###
@@ -64,7 +66,7 @@ RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
 RUN set -eux; \
 	install-php-extensions \
-		xdebug \
+	xdebug \
 	;
 
 COPY --link frankenphp/conf.d/app.dev.ini $PHP_INI_DIR/conf.d/
