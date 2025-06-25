@@ -34,7 +34,6 @@ ENV COMPOSER_ALLOW_SUPERUSER=1
 RUN set -eux; \
 	install-php-extensions \
 	@composer \
-	apcu \
 	intl \
 	opcache \
 	zip \
