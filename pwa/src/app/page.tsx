@@ -17,14 +17,12 @@ export default function HomePage() {
     const motionProps = {
         initial: { opacity: 0, y: 100, filter: 'blur(30px)' },
         whileInView: { opacity: 1, y: 0, filter: 'blur(0px)' },
-        transition: { ease: "easeOut", duration: 0.5 },
         viewport: { margin: "1000px 0px -200px 0px", once: false },
     }
 
     const motionImageProps = {
         initial: { opacity: 0.7, scale: 0.4 },
         whileInView: { opacity: 1, scale: 1 },
-        transition: { ease: "easeOut", duration: 0.5 },
         viewport: { margin: "1000px 0px -100px 0px", once: false },
     }
 
@@ -37,7 +35,12 @@ export default function HomePage() {
 
             <section id="patients" className="py-16 md:py-32">
                 <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
-                    <motion.div {...motionProps}>
+                    <motion.div
+                        {...motionProps}
+                        transition={{
+                            ease: "easeIn",
+                        }}
+                    >
                         <h2 className="relative z-10 max-w-xl text-xl font-bold my-3 text-primary flex items-center">
                             Patients et familles
                         </h2>
@@ -45,7 +48,11 @@ export default function HomePage() {
                         </h3>
                     </motion.div>
                     <div className="grid gap-6 sm:grid-cols-2 md:gap-12 lg:gap-24">
-                        <motion.div {...motionProps}>
+                        <motion.div
+                            {...motionProps}
+                            transition={{
+                                ease: "easeIn",
+                            }}>
                             <div className="relative space-y-4">
                                 <p className="text-muted-foreground">
                                     Nous organisons les soins à domicile de manière humaine, souple et sécurisée.
@@ -134,7 +141,11 @@ export default function HomePage() {
 
 
                         <div className="relative mt-6 sm:mt-0 perspective-midrange">
-                            <motion.div {...motionImageProps}>
+                            <motion.div {...motionImageProps}
+                                transition={{
+                                    ease: "easeIn",
+                                }}
+                            >
                                 <div className="relative mt-6 sm:mt-0 perspective-midrange">
                                     <div className="-rotate-y-15 aspect-67/34 relative rounded-2xl border p-2">
                                         <div className="absolute grid grid-cols-3 grid-rows-3 top-0 left-0 z-10 p-6 gap-6 h-full w-full">
@@ -153,7 +164,10 @@ export default function HomePage() {
             </section >
             <section id="medecins" className="py-16 md:py-32">
                 <div className="mx-auto max-w-5xl space-y-8 px-6">
-                    <motion.div {...motionProps}>
+                    <motion.div {...motionProps}
+                        transition={{
+                            ease: "easeIn",
+                        }}>
                         <h2 className="relative z-10 max-w-xl text-xl font-bold my-3 text-primary flex items-center">
                             Médecins traitants & spécialistes
                         </h2>
@@ -161,7 +175,10 @@ export default function HomePage() {
                     </motion.div>
                     <div className="grid gap-6 sm:grid-cols-2 md:gap-12 lg:gap-24">
                         <div className="relative mt-6 sm:mt-0 perspective-midrange">
-                            <motion.div {...motionImageProps}>
+                            <motion.div {...motionImageProps}
+                                transition={{
+                                    ease: "easeIn",
+                                }}>
                                 <div className="relative mt-6 sm:mt-0 perspective-midrange">
                                     <div className="rotate-y-15 aspect-67/34 relative rounded-2xl border p-2">
                                         <div className="absolute grid grid-cols-3 grid-rows-3 top-0 left-0 z-10 p-6 gap-6 h-full w-full">
@@ -175,7 +192,10 @@ export default function HomePage() {
                                 </div>
                             </motion.div>
                         </div>
-                        <motion.div {...motionProps}>
+                        <motion.div {...motionProps}
+                            transition={{
+                                ease: "easeIn",
+                            }}>
                             <div className="relative space-y-4">
                                 <p className="font-bold mb-1">
                                     Nos engagements :
@@ -238,7 +258,10 @@ export default function HomePage() {
             </section>
             <section id="hopitaux" className="py-16 md:py-32">
                 <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
-                    <motion.div {...motionProps}>
+                    <motion.div {...motionProps}
+                        transition={{
+                            ease: "easeIn",
+                        }}>
                         <h2 className="relative z-10 max-w-xl text-xl font-bold my-3 text-primary flex items-center">
                             Hôpitaux & cliniques
                         </h2>
@@ -247,7 +270,10 @@ export default function HomePage() {
                         </h3>
                     </motion.div>
                     <div className="grid gap-6 sm:grid-cols-2 md:gap-12 lg:gap-24">
-                        <motion.div {...motionProps}>
+                        <motion.div {...motionProps}
+                            transition={{
+                                ease: "easeIn",
+                            }}>
                             <div className="relative space-y-4">
                                 <p className="font-bold mb-1">
                                     Ce que nous apportons :
@@ -300,7 +326,10 @@ export default function HomePage() {
                             </div>
                         </motion.div>
                         <div className="relative mt-6 sm:mt-0 perspective-midrange">
-                            <motion.div {...motionImageProps}>
+                            <motion.div {...motionImageProps}
+                                transition={{
+                                    ease: "easeIn",
+                                }}>
                                 <div className="relative mt-6 sm:mt-0 perspective-midrange">
                                     <div className="-rotate-y-15 aspect-67/34 relative rounded-2xl border p-2">
                                         <div className="absolute grid grid-cols-3 grid-rows-3 top-0 left-0 z-10 p-6 gap-6 h-full w-full">
@@ -321,7 +350,10 @@ export default function HomePage() {
             </section>
             <section id="professionnels" className="py-16 md:py-32">
                 <div className="mx-auto max-w-5xl space-y-8 px-6 md:space-y-16">
-                    <motion.div {...motionProps}>
+                    <motion.div {...motionProps}
+                        transition={{
+                            ease: "easeIn",
+                        }}>
                         <h2 className="relative z-10 max-w-xl text-xl font-bold my-3 text-primary flex items-center">
                             Professionnels de santé
                         </h2>
@@ -329,7 +361,10 @@ export default function HomePage() {
                         </h3>
                     </motion.div>
                     <div className="grid gap-6 sm:grid-cols-2 md:gap-12 lg:gap-24">
-                        <motion.div {...motionImageProps}>
+                        <motion.div {...motionImageProps}
+                            transition={{
+                                ease: "easeIn",
+                            }}>
                             <div className="relative mt-6 sm:mt-0 perspective-midrange">
                                 <div className="rotate-y-15 aspect-67/34 relative rounded-2xl border p-2">
                                     <div className="absolute grid grid-cols-3 grid-rows-3 top-0 left-0 z-10 p-6 gap-6 h-full w-full">
@@ -343,7 +378,10 @@ export default function HomePage() {
                                 </div>
                             </div>
                         </motion.div>
-                        <motion.div {...motionProps}>
+                        <motion.div {...motionProps}
+                            transition={{
+                                ease: "easeIn",
+                            }}>
                             <div className="relative space-y-4">
                                 <p className="font-bold mb-1">
                                     Vos avantages :
