@@ -12,7 +12,7 @@ export async function sendEmail(data: ContactFormInputs) {
 
   const { name, email, who, phone, message } = result.data;
 
-  return fetch("https://localhost/api/send-email", {
+  return fetch("/api/send-email", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
