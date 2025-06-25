@@ -83,6 +83,9 @@ export const Header = () => {
                                         <li key={index}>
                                             <Link
                                                 href={item.href}
+                                                onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                                                    setMenuState(false)
+                                                }}
                                                 className="text-muted-foreground hover:text-accent-foreground block duration-150">
                                                 <span>{item.name}</span>
                                             </Link>

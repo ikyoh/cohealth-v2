@@ -46,11 +46,11 @@ export default function HeroSection() {
                                     preset="fade-in-blur"
                                     speedSegment={0.3}
                                     as="h1"
-                                    className="text-primary font-bold mt-8 text-balance text-6xl md:text-7xl lg:mt-16 xl:text-[5.25rem]">
+                                    className="text-primary font-bold mt-8 text-balance text-5xl md:text-7xl lg:mt-16 xl:text-[5.25rem]">
                                     Coordination des soins à domicile
                                 </TextEffect>
                                 <AnimatedGroup preset='blur'
-                                    className="mt-12 flex items-center justify-around max-w-2xl mx-auto text-secondary font-bold">
+                                    className="mt-12 flex items-center justify-around max-w-2xl mx-auto text-secondary font-bold flex-wrap">
 
                                     <div className='flex justify-center flex-none w-40 items-center gap-2 rounded-xl border-b-2 p-3'>
                                         <Heart />
