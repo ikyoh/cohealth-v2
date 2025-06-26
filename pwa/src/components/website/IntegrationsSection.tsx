@@ -8,13 +8,13 @@ export default function IntegrationsSection() {
         <section>
             <div className="py-24 md:py-32">
                 <div className="mx-auto max-w-5xl px-6">
-                    <div className="aspect-16/10 group relative mx-auto flex max-w-88 items-center justify-between sm:max-w-sm">
+                    <div className="aspect-16/10 relative mx-auto flex max-w-88 items-center justify-between sm:max-w-sm">
                         <div
                             role="presentation"
-                            className="bg-linear-to-b border-foreground/5 absolute inset-0 z-10 aspect-square animate-spin items-center justify-center rounded-full border-t from-secondary/15 to-transparent to-25% opacity-0 duration-[3.5s] group-hover:opacity-100 dark:from-white/5"></div>
+                            className="bg-linear-to-b border-foreground/5 absolute inset-0 z-10 aspect-square animate-spin items-center justify-center rounded-full border-t from-secondary/15 to-transparent to-25% dark:from-white/5" style={{ animationDuration: '5000ms' }}></div>
                         <div
                             role="presentation"
-                            className="bg-linear-to-b border-foreground/5 absolute inset-16 z-10 aspect-square scale-90 animate-spin items-center justify-center rounded-full border-t from-primary/15 to-transparent to-25% opacity-0 duration-[3.5s] group-hover:opacity-100"></div>
+                            className="bg-linear-to-b border-foreground/5 absolute inset-16 z-10 aspect-square scale-90 animate-spin items-center justify-center rounded-full border-t from-primary/15 to-transparent to-25%" style={{ animationDuration: '3000ms' }}></div>
                         <div className="bg-linear-to-b from-muted-foreground/15 absolute inset-0 flex aspect-square items-center justify-center rounded-full border-t to-transparent to-25%">
                             <IntegrationCard className="-translate-x-1/6 absolute left-0 top-1/4 -translate-y-1/4 text-secondary">
                                 <SoapDispenserDroplet />

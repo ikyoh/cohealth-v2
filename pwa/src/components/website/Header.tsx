@@ -26,7 +26,7 @@ export const Header = () => {
         return () => window.removeEventListener('scroll', handleScroll)
     }, [])
     return (
-        <header>
+        <header className={cn('container max-x-auto')}>
             <nav
                 data-state={menuState && 'active'}
                 className="fixed z-50 w-full px-2">
@@ -114,8 +114,13 @@ export const Header = () => {
                                 <Button
                                     asChild
                                     size="sm"
-                                    className={cn(isScrolled ? 'lg:inline-flex' : 'hidden')}>
-                                    <Link href="#contact">
+                                    className={cn(isScrolled ? 'inline-flex' : 'md:hidden')}>
+                                    <Link
+                                        href="#contact"
+                                        onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                                            setMenuState(false)
+                                        }}
+                                    >
                                         <span>Contactez-nous</span>
                                     </Link>
                                 </Button>
