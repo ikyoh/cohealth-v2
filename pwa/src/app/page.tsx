@@ -96,26 +96,6 @@ export default function HomePage() {
                                                 Suivi via application & équipe dédiée
                                             </li>
                                         </ul>
-                                        <p className="font-bold mb-1">
-                                            Financement & prise en charge :
-                                        </p>
-                                        <p className="text-muted-foreground">
-                                            Nos prestations sont couvertes par :
-                                        </p>
-                                        <ul>
-                                            <li>
-                                                Assurance de base (LAMal)
-                                            </li>
-                                            <li>
-                                                Assurances complémentaires
-                                            </li>
-                                            <li>
-                                                Prestations privées sur devis
-                                            </li>
-                                            <li>
-                                                Tarifs conventionnés cantonaux
-                                            </li>
-                                        </ul>
                                         <p className="text-muted-foreground">Transparence garantie : évaluation claire et devis selon les besoins.</p>
 
                                         <Link
