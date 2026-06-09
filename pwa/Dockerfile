@@ -2,7 +2,7 @@
 
 
 # Versions
-FROM node:lts AS node_upstream
+FROM node:22 AS node_upstream
 
 
 # Base stage for dev and build
@@ -10,10 +10,12 @@ FROM node_upstream AS base
 
 WORKDIR /srv/app
 
-RUN npm install -g corepack@latest && \
-	corepack enable && \
-	corepack prepare --activate pnpm@latest && \
-	pnpm config -g set store-dir /.pnpm-store
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+
+RUN corepack enable && \
+	corepack prepare pnpm@9.1.3 --activate && \
+	pnpm config set store-dir /.pnpm-store --global
 
 # Next.js collects completely anonymous telemetry data about general usage.
 # Learn more here: https://nextjs.org/telemetry
@@ -28,7 +30,7 @@ EXPOSE 3000
 ENV PORT 3000
 ENV HOSTNAME localhost
 
-CMD ["sh", "-c", "pnpm install; pnpm dev"]
+CMD ["sh", "-c", "rm -rf .next/*; pnpm install --frozen-lockfile --child-concurrency=1 --network-concurrency=4; pnpm dev"]
 
 
 FROM base AS builder

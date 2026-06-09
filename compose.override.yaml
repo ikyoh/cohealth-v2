@@ -27,6 +27,8 @@ services:
       target: dev
     volumes:
       - ./pwa:/srv/app
+      - pwa_node_modules:/srv/app/node_modules
+      - pwa_next_cache:/srv/app/.next
     environment:
       API_PLATFORM_CREATE_CLIENT_ENTRYPOINT: http://php
       API_PLATFORM_CREATE_CLIENT_OUTPUT: .
@@ -43,3 +45,7 @@ services:
 
 ###> symfony/mercure-bundle ###
 ###< symfony/mercure-bundle ###
+
+volumes:
+  pwa_node_modules:
+  pwa_next_cache:
