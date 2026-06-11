@@ -1,0 +1,34 @@
+vich_uploader:
+    db_driver: orm
+    metadata:
+            type: attribute
+    mappings:
+        media_object:
+            uri_prefix: /media
+            upload_destination: "%kernel.project_dir%/public/media"
+            # Will rename uploaded files using a uniqueid as a suffix.
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+        media_avatar:
+            uri_prefix: /avatar
+            upload_destination: '%kernel.project_dir%/public/avatar'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            delete_on_remove: true
+            delete_on_update: true
+        media_signature:
+            uri_prefix: /signature
+            upload_destination: '%kernel.project_dir%/public/signature'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            delete_on_remove: true
+            delete_on_update: true
+        media_document:
+            uri_prefix: /document
+            upload_destination: '%kernel.project_dir%/public/document'
+            namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
+            delete_on_remove: true
+            delete_on_update: true
+
+    #mappings:
+    #    products:
+    #        uri_prefix: /images/products
+    #        upload_destination: '%kernel.project_dir%/public/images/products'
+    #        namer: Vich\UploaderBundle\Naming\SmartUniqueNamer

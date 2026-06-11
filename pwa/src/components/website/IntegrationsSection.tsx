@@ -1,4 +1,4 @@
-import { cn } from '@/lib/utils'
+import { cn } from '@/utils/utils'
 import { Ambulance, CalendarDays, HeartPulse, Hospital, SoapDispenserDroplet, Stethoscope } from 'lucide-react'
 import Image from 'next/image'
 import picto from '../../../public/picto.svg'

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { enumKeysToArray } from "./functions.utils";
-import { Cantons, Gender, InsuranceCategory, MissionStatus, PrescriptionStatus, PrincipalCategories } from "./types.utils";
+import { Cantons, Gender, InsuranceCategory, MissionStatus, ObservationType, PrescriptionStatus, PrincipalCategories } from "./types.utils";
 
 const requiredString = (min=2,max=255) => z.string({message:"Champ obligatoire."})
             .min(min, {
@@ -227,6 +227,53 @@ export const missionFormSchema = z.object({
     owners: z.array(z.string()).optional(),
 })
 
+const optionalMeasuredNumber = z.preprocess(
+    (value) => value === "" || value === null || value === undefined ? undefined : Number(value),
+    z.number().positive("La valeur doit être supérieure à zéro.").optional(),
+)
+
+export const observationFormSchema = z.object({
+    type: z.enum(enumKeysToArray(ObservationType), { error: "Choix obligatoire" }),
+    observedAt: z.string().min(1, "La date et l’heure sont obligatoires."),
+    value: optionalMeasuredNumber,
+    systolic: optionalMeasuredNumber,
+    diastolic: optionalMeasuredNumber,
+    content: z.string().max(5000, "5000 caractères maximum.").optional(),
+}).superRefine((data, context) => {
+    if (data.type === ObservationType.TEXT && !data.content?.trim()) {
+        context.addIssue({
+            code: "custom",
+            path: ["content"],
+            message: "Le texte de l’observation est obligatoire.",
+        })
+    }
+
+    if (data.type === ObservationType.BLOOD_PRESSURE) {
+        if (!data.systolic) {
+            context.addIssue({
+                code: "custom",
+                path: ["systolic"],
+                message: "La pression systolique est obligatoire.",
+            })
+        }
+        if (!data.diastolic) {
+            context.addIssue({
+                code: "custom",
+                path: ["diastolic"],
+                message: "La pression diastolique est obligatoire.",
+            })
+        }
+    }
+
+    if (![ObservationType.TEXT, ObservationType.BLOOD_PRESSURE].includes(data.type) && !data.value) {
+        context.addIssue({
+            code: "custom",
+            path: ["value"],
+            message: "La valeur mesurée est obligatoire.",
+        })
+    }
+})
+
 export const prescriptionServicesFormSchema = z.array(z.object({
             "@id": z.string(),
             "@type": z.string(),
@@ -242,6 +289,12 @@ export const prescriptionServicesFormSchema = z.array(z.object({
             active: z.boolean(),
             periodicity: z.string(),
             frequency:  z.number(),
+            cooperator: z.object({
+                "@id": z.string(),
+                uuid: z.string().optional(),
+                firstname: z.string().optional(),
+                lastname: z.string().optional(),
+            }).optional(),
         }))
 
 export const prescriptionFormSchema = z.object({

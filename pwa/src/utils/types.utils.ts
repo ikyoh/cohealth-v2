@@ -112,6 +112,31 @@ export interface MissionInterface {
   status: MissionStatus;
 }
 
+export enum ObservationType {
+  WEIGHT = "WEIGHT",
+  BLOOD_PRESSURE = "BLOOD_PRESSURE",
+  BLOOD_GLUCOSE = "BLOOD_GLUCOSE",
+  TEMPERATURE = "TEMPERATURE",
+  TEXT = "TEXT",
+}
+
+export interface ObservationInterface {
+  "@id": string;
+  "@type": string;
+  id: number;
+  uuid: string;
+  mission: MissionInterface | string;
+  owner: UserInterface | string;
+  authorName: string;
+  type: ObservationType;
+  observedAt: string;
+  createdAt: string;
+  value?: string | number | null;
+  systolic?: number | null;
+  diastolic?: number | null;
+  content?: string | null;
+}
+
 export interface PrescriptionInterface {
   "@context": string;
   "@id": string;
@@ -127,6 +152,7 @@ export interface PrescriptionInterface {
   patient: string | PatientInterface; // IRI ou objet Patient
   status: string; // PrescriptionStatusEnum côté front (string ou enum)
   mission?: string | MissionInterface | null; // IRI, objet ou null
+  planned: boolean;
 }
 
 export enum InsuranceCategory {

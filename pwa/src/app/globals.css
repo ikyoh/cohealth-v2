@@ -153,3 +153,27 @@
         @apply scroll-smooth scroll-pt-16;
     }
 }
+
+.customScrollbar {
+    scrollbar-color: gray transparent;
+    scrollbar-width: thin;
+}
+
+.react-grid-layout {
+    position: relative;
+}
+
+.react-grid-item {
+    transition: all 200ms ease;
+    transition-property: left, top, width, height;
+}
+
+.react-grid-item.cssTransforms {
+    transition-property: transform, width, height;
+}
+
+.react-grid-item.react-draggable-dragging {
+    transition: none;
+    z-index: 3;
+    will-change: transform;
+}

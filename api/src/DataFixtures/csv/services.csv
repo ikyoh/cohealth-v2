@@ -1,0 +1,530 @@
+Aider à boire;Alimentation et diètes;10301;C;0;"Faire le bilan hydrique, évaluer
+Faire le bilan des éliminations, évaluer
+Instruire le client et son entourage sur l’importance d’une bonne hydratation";let. c ch. 1;1
+Aider à manger / à s’alimenter;Alimentation et diètes;10302;C;0;"Encourager à manger / donner à manger
+Laver les mains du client / rincer sa bouche
+Instruire le client et son entourage (au besoin)";let. c ch. 1;1
+Alimentation par sonde;Alimentation et diètes;10304;B;15;"établir les besoins en liquides et en nutriments par jour
+ préparer la solution nutritive
+ installer le client
+ vérifier que la sonde gastrique est en position correcte
+ connecter la solution nutritive à la sonde et régler la rapidité du débit, ou
+ instiller la solution nutritive avec une seringue
+ rincer la sonde et la fermer
+ soigner l’orifice buccal et nasal
+ contrôler la fixation et la position de la sonde";let. b ch. 8;1
+Pose de sonde gastrique;Alimentation et diètes;10305;B;20;"installer le client selon directives professionnelles
+ mettre des gants (selon directives du service)
+ mesurer la longueur de la sonde
+ introduire la sonde par le nez
+ vérifier que la sonde est bien dans l’estomac
+ fixer la sonde";let. b ch. 8;1
+Soins de gastrostomie;Alimentation et diètes;10306;B;13;"installer le client
+ mettre des gants (selon directives du service)
+ enlever le pansement sale
+ soigner la peau autour de la stomie selon instructions du médecin
+ refaire le pansement";let. b ch. 10;1
+Soins de sonde naso-gastrique;Alimentation et diètes;10999;B;13;"installer le client
+ mettre des gants (selon directives du service)
+ enlever les fixations de la sonde
+ soigner la peau, le nez, la bouche selon besoin
+ refixer la sonde";let. b ch. 10;1
+Accompagner aux WC;Elimination;10419;C;10;"accompagner le client aux WC / l’installer sur la chaise percée
+ aider au déshabillage / rhabillage (au besoin)
+ convenir avec le client d’un signal d’appel et attendre
+ fournir le papier toilette ou aider le client à se nettoyer (au besoin)
+ réinstaller le client";let. c ch. 1;1
+Bassin / vase;Elimination;10401;C;8;"préparation du client (ôter les sous-vêtements), toilette intime si besoin
+ mettre des gants
+ apporter, positionner, enlever et vider le bassin / vase
+ évaluer le contenu du bassin / vase
+ aider le client à se nettoyer et à se rhabiller";let. c ch. 1;1
+Bilan hydrique 24h;Elimination;10418;B;4;"instruire le client sur la façon de procéder soi-même à un bilan hydrique de
+ 24h
+ contrôler et vérifier les résultats
+ dépister les oedèmes et les documenter
+ informer le médecin";let. b ch. 1;1
+Changer (vider) la poche d’urine;Elimination;10999;C;5;"mettre des gants
+ vidanger le système stérile
+ changer, vider la poche d’urine non stérile";let. c ch. 1;1
+Dialyse péritonéale;Elimination;10420;B;0;"branchement du cycleur ou dyalisat selon la norme
+ i njection de médicaments dans la poche du dyalisat
+ mise en route et contrôle du bon fonctionnement du traitement
+ débranchement du cycleur ou du dyalisat
+ prélèvement de matériel pour analyse au laboratoire
+ surveillance clinique
+ assurer le ravitaillement en matériel";let. b ch. 6;1
+Enlever la sonde vésicale;Elimination;10408;B;4;"installer le client
+ mettre des gants
+ mettre une protection sous le client
+ vider le ballon de la sonde à la seringue
+ retirer la sonde";let. b ch. 5;1
+Extraction manuelle de selles;Elimination;10412;B;20;"une heure avant l’extraction, donner un suppositoire à la glycérine ou autre
+ selon o.m.
+ installer le client
+ mettre des gants
+ mettre une protection sous le client
+ masser l’abdomen
+ extraire les selles
+ nettoyer la zone anale";let. b ch. 11;1
+Lavage de vessie;Elimination;10404;B;15;"préparation du client (ôter les sous-vêtements) et toilette intime si nécessaire
+ mettre des gants
+ mettre une protection sous le client
+ enlever le sac d’urine ou ouvrir le bouchon de la sonde urinaire
+ chauffer le liquide de lavage à température corporelle
+ instiller
+ contrôle du liquide qui coule en retour (qualitatif et quantitatif)
+ remettre un sac d’urine ou fermer la sonde
+ contrôler que le sac d’urine est en position convenable
+ aider le client à se rhabiller";let. b ch. 11;1
+Lavement;Elimination;10411;B;21;"installer le client
+ instructions / conseils au client
+ chauffer la solution à température corporelle
+ mettre des gants
+ mettre une protection sous le client
+ poser la sonde rectale
+ introduire la solution de lavage
+ contrôler l’abdomen
+ enlever la sonde";let. b ch. 11;1
+Lavement / Lavage de stomie;Elimination;10417;B;20;"installer le client sur WC / chaise percée / bassin
+ mettre des gants
+ mettre une protection sous le client
+ enlever la poche de stomie
+ s’assurer du bon état de la stomie
+ mettre en place le système de lavage et procéder au lavage
+ enlever le système de lavage
+ nettoyer et sécher la peau autour de la stomie
+ mettre une nouvelle poche de stomie";let. b ch. 11;1
+Mettre des protections / ajuster l’urinal;Elimination;10413;C;8;"installer le client
+ mettre des gants
+ enlever les protections usées ou l’urinal utilisé
+ mettre de nouvelles protections / ajuster l’urinal
+ mettre en place / enlever l’étui pénien avec poche d’urine
+ instructions / conseils au client";let. c ch. 1;1
+Petit lavement (type Practo-clyss);Elimination;10410;B;16;"installer le client
+ instructions / conseils au client
+ mettre des gants
+ mettre une protection sous le client
+ chauffer le lavement type Practo-clyss à température corporelle
+ introduire le lavement type Practo-clyss
+ enlever la sonde";let. b ch. 11;1
+Pose de sonde rectale (gaz);Elimination;10409;B;7;"installer le client
+ mettre des gants
+ mettre une protection sous le client
+ instructions / conseils au client
+ introduire la sonde rectale
+ contrôler l’abdomen
+ enlever la sonde";let. b ch. 11;1
+Pose de sonde vésicale (à demeure ou non)(*sauf pose de la première sonde);Elimination;10407;B;30;"installer le client
+ mettre des gants
+ mettre une protection sous le client
+ faire la toilette intime
+ poser la sonde (aseptique)
+ si sonde à demeure, la fixer
+ contrôler l’écoulement
+ mettre la poche d’urine ou fermer la valve anti-reflux, ou enlever la sonde occasionnelle
+ assurer la transmission correcte de l’échantillon d’urine au cabinet médical ou au laboratoire";let. b ch. 11;1
+Soins / entretien de sonde vésicale;Elimination;10406;B;5;"contrôler la position de la sonde et le débit d’urine
+ contrôler la quantité et la qualité d’urine
+ mettre des gants
+ changer ou vider la poche d’urine stérile ou non stérile";let. b ch. 11;1
+Soins de stomie normale;Elimination;10415;B;15;"installer le client
+ mettre des gants
+ mettre une protection sous le client
+ enlever la poche de stomie
+ nettoyer et sécher la peau autour de la stomie
+ appliquer crème ou onguent
+ remettre la poche de stomie";let. b ch. 11;1
+Soins d’urostomie;Elimination;10405;B;16;"installer le client
+ mettre des gants
+ mettre une protection sous le client
+ enlever le sac de stomie
+ nettoyer et sécher la peau autour de la stomie
+ appliquer des produits pour la peau, si indiqué
+ remettre un sac de stomie neuf";let. b ch. 11;1
+Stimulation manuelle de la vessie;Elimination;10403;B;7;"installer et préparer le client
+ mettre des gants
+ mettre une protection sous le client ou l’urinal
+ percussion de la vessie jusqu’à vidage complet
+ vider l’urinal et enlever la protection";let. b ch. 11;1
+Urinal;Elimination;10402;C;5;"préparation du client (ôter les sous-vêtements), toilette intime si nécessaire
+ mettre des gants
+ apporter, positionner, enlever et vider l’urinal / bassin / vase
+ évaluer le contenu de l’urinal
+ aider le client à se nettoyer";let. c ch. 1;1
+Vider la poche de stomie;Elimination;10414;B;8;"installer le client
+ mettre des gants
+ enlever la poche de stomie
+ contrôler la peau
+ mettre une nouvelle poche";let. b ch. 11;1
+Première évaluation;Evaluation - Conseil - Coordination;10901;A;60;"évaluation à l’aide des formulaires en vigueur à imad
+ évaluation ciblée à l’aide d’instruments évalués scientifiquement (ex. ESAS)";let. a ch. 1;1
+Réévaluation;Evaluation - Conseil - Coordination;10902;A;60;"évaluation à l’aide des formulaires en vigueur à imad
+ évaluation ciblée à l’aide d’instruments évalués scientifiquement (ex. ESAS)
+ récolte supplémentaire de données relatives à l’anamnèse
+ ce point englobe l’analyse de la situation du client sur la base de l’évaluation,
+ la détermination des objectifs et des interventions d’aide et de soins qui sont
+ nécessaires, ainsi que la planification des intervenants";let. a ch. 1;1
+Consulter médecin au sujet du client;Evaluation - Conseil - Coordination;10907;A;11;"informer le médecin traitant des conclusions et opinions du service au
+ sujet du client, afin d’assurer sa prise en charge et son traitement de façon
+ interdisciplinaire
+ examiner la situation du client avec le médecin
+ actualiser les prescriptions médicales";let. a ch. 2;1
+Bilan de l’évolution de l’état de santé;Evaluation - Conseil - Coordination;10906;A;15;"évaluer l’état de santé global et adapter le plan de soins de manière continue
+ quantification prospective de l’aide et des soins découlant de l’évaluation des
+ besoins, à l’aide du catalogue des prestations
+ préparer / adapter la documentation pour accord du médecin traitant";let. a ch. 2;1
+Établir un plan d’intervention pour les soins;Evaluation - Conseil - Coordination;10904;A;30;Ce point englobe l’analyse de la situation du client sur la base de l’évaluation, la détermination des objectifs et des interventions d’aide et de soins qui sont nécessaires;let. a ch. 1;1
+Établir un plan d’intervention complémentaire pour les soins;Evaluation - Conseil - Coordination;10999;A;30;"analyse complémentaire lors de situations complexes :
+- compléter l’analyse clinique
+- consolider les objectifs
+- planifier les interventions";let. a ch. 1;1
+Coordination;Evaluation - Conseil - Coordination;10912;A;0;"identification et évaluation des situations complexes et instables
+ identification et détermination du rôle de coordination avec un objectif défini
+ coordination ciblée avec plusieurs personnes impliquées en dehors de sa
+ propre organisation, visant à optimiser les soins et le traitement
+ documentation des mesures fixées qui résultent de la coordination (p.ex. procès-verbal de décisions)
+ plan de soins et mise en œuvre des mesures visant à éviter les complications
+ monitoring de la coordination";let. a ch. 3;1
+Coordination proactive;Evaluation - Conseil - Coordination;10999;A;0;"identification et évaluation des situations complexes et stables
+ identification et détermination du rôle de coordination avec un objectif défini
+ coordination ciblée avec plusieurs personnes impliquées en dehors de sa
+ propre organisation, visant à prévenir une dégradation de la situation
+ documentation des mesures fixées qui résultent de la coordination (p.ex. procès-verbal de décisions)
+ plan de soins et mise en œuvre des mesures visant à éviter les complications";let. a ch. 3;1
+Instructions / conseils au sujet des soins à la cliente ou à ses proches;Evaluation - Conseil - Coordination;10909;A;15;"instructions / conseils au client ou à ses proches en vue de l’acquisition de la
+ capacité à accomplir certains soins (par ex : faire un pansement, une injection
+ du type Fraxiparine ou insuline pour diabétique, des exercices respiratoires,
+ les soins de stomie ou de cathéter, le contrôle des symptômes et leur documentation, etc.)
+ vérifier que ces instructions ont été comprises et correctement appliquées";let. a ch. 2;1
+Aider à l’habillage (déshabillage);Hygiène - Confort;10114;C;15;"préparer les habits
+ aider à l’habillage / déshabillage
+ s’occuper des habits, les entretenir";let. c ch. 1;1
+Bas / bandages de compression;Hygiène - Confort;10115;C;10;"contrôle de la peau
+ mettre / enlever les bas ou bandages de compression
+ hydrater la peau
+ mettre les bas / pantalons";let. c ch. 1;1
+Brosser les dents;Hygiène - Confort;10112;C;5;"nettoyer les dents et la bouche
+ nettoyer les prothèses (au besoin)";let. c ch. 1;1
+Hygiène buccale (p.ex. des situations palliatifs);Hygiène - Confort;10113;C;10;"hygiène buccale pour client chez qui un brossage normal des dents est
+ impossible
+ nettoyer les dents et la bouche
+ nettoyer les prothèses (au besoin)
+ humecter les muqueuses";let. c ch. 1;1
+Laver les cheveux;Hygiène - Confort;10107;C;15;"préparer le client dans son lit ou devant le lavabo
+ laver les cheveux
+ appliquer une lotion capillaire, frictionner et sécher (au besoin)
+ sécher avec sèche-cheveux
+ peigner / coiffer
+ réinstaller le client confortablement";let. c ch. 1;1
+Rasage (combiné avec toilette complète ou partielle);Hygiène - Confort;10106;C;10;"raser à sec ou avec crème
+ soigner la peau, appliquer une lotion";let. c ch. 1;1
+Soins des ongles (mains);Hygiène - Confort;10108;C;15;"laver les mains du client
+ couper, nettoyer, limer les ongles
+ désinfecter les ongles (au besoin)
+ appliquer une lotion ou crème";let. c ch. 1;1
+Soins des ongles (pieds chez diabétique);Hygiène - Confort;10110;B;20;"laver les pieds du client
+ nettoyer, limer les ongles
+ désinfecter les ongles
+ appliquer une lotion ou crème
+ contrôle de la peau des pieds et soins des éventuelles petites lésions";let. b ch. 10;1
+Soins des ongles (pieds);Hygiène - Confort;10109;C;15;"laver les pieds du client
+ couper (pieds sains), nettoyer les ongles
+ désinfecter les ongles
+ appliquer une lotion ou crème";let. c ch. 1;1
+Toilette complète dans bain / douche ou lavabo;Hygiène - Confort;10102;C;40;"accompagner ou transférer (fauteuil roulant) le client à la salle de bain
+ déshabiller le client
+ faire entrer le client dans la douche ou l’installer devant le lavabo
+ laver le client
+ faire sortir le client de la douche
+ sécher le client
+ soigner sa peau, appliquer une lotion
+ habiller et peigner / coiffer le client
+ transférer le client hors de la salle de bain
+ nettoyer la douche ou le lavabo";let. c ch. 1;1
+Toilette complète au lit;Hygiène - Confort;10101;C;40;"préparer le lit et déshabiller le client
+ laver le client et le sécher
+ appliquer une lotion protectrice de la peau au besoin
+ habiller le client
+ peigner / brosser les cheveux
+ refaire le lit (changer la literie si nécessaire)
+ réinstaller le client dans son lit";let. c ch. 1;1
+Toilette intime au lit ou au lavabo;Hygiène - Confort;10105;C;15;"protéger le lit et les habits / chemise de nuit
+ enlever les protections (urinal, couches, etc.)
+ faire la toilette intime
+ soigner la peau, appliquer une lotion au besoin
+ remettre les moyens de protection
+ rhabiller les parties intimes et réinstaller le client confortablement
+ changer la literie (au besoin)";let. c ch. 1;1
+Toilette partielle au lavabo (y.c. toilette intime);Hygiène - Confort;10104;C;26;"aider le client à s’installer devant le lavabo
+ laver les parties du corps choisies et les sécher
+ toilette intime
+ soigner sa peau, appliquer une lotion au besoin
+ peigner / coiffer le client
+ le rhabiller
+ l’accompagner hors de la salle de bain et le réinstaller confortablement";let. c ch. 1;1
+Toilette partielle au lit (y.c. toilette intime);Hygiène - Confort;10103;C;20;"préparer le lit et déshabiller le client
+ laver les parties du corps choisies et les sécher
+ toilette intime
+ soigner sa peau, appliquer une lotion au besoin
+ habiller le client
+ peigner / coiffer le client
+ refaire le lit (changer la literie si nécessaire)";let. c ch. 1;1
+Contrôle de santé (paramètres vitaux);Mesures - Diagnostics;10801;B;5;"cet acte est à utiliser uniquement en association avec d’autres actes !
+ évaluer l’état général du client
+ mesurer, juger et documenter les paramètres vitaux (pression sanguine, pouls, respiration)";let. b ch. 1;1
+Contrôle du poids;Mesures - Diagnostics;10806;B;5;"peser le client, si possible au même moment de la journée et avec les mêmes habits
+ documenter les œdèmes";let. b ch. 1;1
+Contrôle du pouls;Mesures - Diagnostics;10803;B;5;contrôler le pouls et documenter le résultat de la mesure;let. b ch. 1;1
+Culture d’urine;Mesures - Diagnostics;10812;B;10;"préparation du matériel et de l’étiquetage
+ récolter la quantité d’urine nécessaire selon les instructions
+ effectuer le test de glucose (au besoin)
+ s’assurer de la transmission de l’échantillon d’urine (au besoin)";let. b ch. 2;1
+Observation / contrôle de la respiration;Mesures - Diagnostics;10804;B;5;"compter les mouvements respiratoires par unité de temps, évaluer les
+ caractéristiques de la respiration (fréquence, amplitude, bruits respiratoires) et documenter";let. b ch. 1;1
+Prise de la température;Mesures - Diagnostics;10805;B;5;mesurer la température corporelle et documenter le résultat de la mesure;let. b ch. 1;1
+Ponction capillaire pour contrôle de la glycémie;Mesures - Diagnostics;10808;B;10;"mettre des gants
+ préparer et effectuer la prise de sang capillaire
+ faire fonctionner le glycomètre selon les indications, ou s’assurer de la
+ transmission correcte de l’échantillon de sang
+ documenter le résultat";let. b ch. 2;1
+Ponction veineuse;Mesures - Diagnostics;10809;B;15;"consulter la fiche du laboratoire
+ préparer le matériel de ponction et d’étiquetage
+ mettre des gants
+ effectuer la ponction
+ prélever la quantité de sang nécessaire
+ s’assurer de la transmission correcte de l’échantillon de sang";let. b ch. 3;1
+Prise de sang par cathéter veineux central / port-a-cath;Mesures - Diagnostics;10810;B;10;"installer le client
+ consulter la fiche du laboratoire
+ préparer le matériel de ponction et d’étiquetage
+ mettre des gants
+ prélever la quantité de sang nécessaire
+ relier de nouveau la perfusion au cathéter ou rincer le cathéter selon instructions
+ contrôler le débit de la perfusion
+ s’assurer de la transmission correcte de l’échantillon de sang";let. b ch. 3;1
+Prise de tension artérielle;Mesures - Diagnostics;10802;B;5;"préparation du client
+ mesurer la tension artérielle et documenter le résultat de la mesure";let. b ch. 1;1
+Récolte de sécrétions pour analyse;Mesures - Diagnostics;10811;B;15;"préparer le matériel et l’étiquetage
+ mettre des gants
+ récolter la quantité de sécrétions nécessaires
+ ranger / éliminer le matériel utilisé
+ s’assurer de la transmission correcte de l’échantillon de sécrétion";let. b ch. 3;1
+Aide à la marche;Mobilisation;10505;C;8;"aider le client à se mettre debout
+ mettre à disposition les aides à la marche (déambulateur, béquilles, etc.) (à l’exclusion des prothèses)
+ contrôler la position du client
+ déplacer avec précaution les instruments techniques médicaux (perfusion, pompe, Redon, poche d’urine, etc.)
+ aide à la marche dans le logement (ou pour utiliser des escaliers si nécessaire)
+ aide pour se rasseoir au fauteuil ou se recoucher au lit
+ s’assurer que, dans la nouvelle position du client, les instruments techniques (perfusion, sonde, etc.) fonctionnent correctement";let. c ch. 1;1
+Lever / coucher avec aide;Mobilisation;10503;C;5;"aide à la mobilisation passive au lit, gymnastique de lit passive (au besoin)
+ mettre à disposition les aides à la marche (déambulateur, béquilles, etc.) (à l’exclusion des prothèses)
+ aide pour le transfert au fauteuil, fauteuil roulant
+ installer sur fauteuil / fauteuil roulant et contrôler la position
+ déplacer avec précaution les instruments techniques médicaux (perfusion, pompe, Redon, poche d’urine, etc.)
+ s’assurer que, dans la nouvelle position du client, les instruments techniques (perfusion, sonde, etc.) fonctionnent correctement";let. c ch. 1;1
+Installer le client dans le lit;Mobilisation;10501;C;8;"enlever du lit les aides techniques au confort
+ déplacer avec précaution les instruments techniques médicaux (perfusion, pompe, Redon, poche d’urine, etc.)
+ installer le client
+ remettre les aides techniques au confort
+ s’assurer que, dans la nouvelle position du client, les instruments techniques (perfusion, sonde, etc.) fonctionnent correctement";let. c ch. 1;1
+Installer le client dans le lit, y compris faire le lit et changer la literie (au besoin);Mobilisation;10502;C;15;"enlever du lit les aides techniques au confort
+ déplacer avec précaution les instruments techniques médicaux (perfusion, pompe, Redon, poche d’urine, etc.)
+ changer la literie (au besoin), refaire le lit
+ installer le client
+ remettre les aides techniques au confort
+ s’assurer que, dans la nouvelle position du client, les instruments techniques (perfusion, sonde, etc.) fonctionnent correctement";let. c ch. 1;1
+Lever / coucher avec élévateur ou 2 personnes;Mobilisation;10504;C;10;"éventuellement, aide à la mobilisation passive au lit, gymnastique de lit passive
+ mettre à disposition les aides à la marche (déambulateur, béquilles, etc.) (à l’exclusion des prothèses)
+ 
+ aide pour le transfert avec élévateur ou 2 personnes au fauteuil, fauteuil roulant
+ installer sur fauteuil / fauteuil roulant et contrôler la position
+ déplacer avec précaution les instruments techniques médicaux (perfusion, pompe, Redon, poche d’urine, etc.)
+ s’assurer que, dans la nouvelle position du client, les instruments techniques (perfusion, sonde, etc.) fonctionnent correctement";let. c ch. 1;1
+Mettre / enlever les aides techniques;Mobilisation;10508;C;10;"Description de « mettre »
+ dévêtir la partie du corps concernée
+ ajuster l’aide technique (prothèse, orthèse, échelle, etc.)
+ contrôler la position correcte et le bon fonctionnement de l’aide technique
+ Description de « enlever »
+ dévêtir la partie du corps concernée
+ enlever l’aide technique (prothèse, orthèse, échelle, etc.)
+ contrôler la position correcte et le bon fonctionnement de l’aide technique";let. c ch. 1;1
+Mobilisation active / passive;Mobilisation;10506;C;17;"exécuter les exercices de mobilisation active / passive des membres et/ou des
+ muscles, au moyen des aides techniques appropriées";let. c ch. 1;1
+Grand pansement;Pansement;10703;B;40;"mettre des gants
+ préparer le matériel stérile et non stérile
+ préparer le champ stérile (au besoin)
+ enlever le pansement usé
+ nettoyer et désinfecter la plaie et la peau environnante
+ soigner la plaie selon prescription médicale
+ appliquer et fixer le nouveau pansement";let. b ch. 10;1
+Moyen pansement;Pansement;10702;B;24;"mettre des gants
+ préparer le matériel stérile et non stérile
+ préparer le champ stérile (au besoin)
+ enlever le pansement usé
+ nettoyer et désinfecter la plaie et la peau environnante
+ soigner la plaie selon prescription médicale
+ appliquer et fixer le nouveau pansement";let. b ch. 10;1
+Petit pansement;Pansement;10701;B;15;"mettre des gants
+ préparer le matériel stérile et non stérile
+ préparer le champ stérile ou non stérile
+ enlever le pansement usé
+ nettoyer et désinfecter la plaie et la peau environnante
+ soigner la plaie selon prescription médicale
+ appliquer et fixer le nouveau pansement
+ Inclus pose de bande de compression à 3 couches";let. b ch. 10;1
+Aspiration des sécrétions;Respiration;10205;B;15;"installer l’aspirateur
+ vérifier son fonctionnement
+ mettre le client en position adéquate
+ mettre des gants
+ aspirer les sécrétions
+ vider l’aspirateur, le nettoyer et le préparer
+ jeter les sécrétions
+ veiller au contrôle et à l’entretien réguliers de l’appareil";let. b ch. 4;1
+Exercices respiratoires / aide pour expectorer;Respiration;10201;B;14;"montrer au client comment faire les exercices respiratoires
+ aider le client à tousser et expectorer ses sécrétions
+ mettre des gants et extraire les sécrétions (au besoin)
+ montrer le fonctionnement et l’entretien de l’appareil
+ contrôler la fréquence respiratoire et le mouvement de la cage thoracique";let. b ch. 4;1
+Inhalation / aérosol (préparation);Respiration;10202;B;5;"remplir l’appareil avec le médicament
+ tester le fonctionnement de l’appareil
+ montrer le fonctionnement et l’entretien de l’appareil
+ veiller au contrôle et à l’entretien réguliers de l’appareil";let. b ch. 4;1
+Inhalation / aérosol (présence constante);Respiration;10203;B;15;"remplir l’appareil avec le médicament
+ tester le fonctionnement de l’appareil
+ montrer comment utiliser l’appareil et surveiller que l’inhalation se fait correctement
+ veiller au contrôle et à l’entretien réguliers de l’appareil";let. b ch. 4;1
+Oxygénothérapie;Respiration;10204;B;9;"installer la bonbonne d’oxygène
+ brancher l’aquapack (barboteur)
+ contrôler le débit d’oxygène
+ s’assurer qu’il n’y a pas de fuites
+ brancher la sonde ou le masque
+ s’assurer que les voies respiratoires sont libres
+ poser la sonde / le masque
+ enclencher le débit (litres/minute)
+ vérifier l’arrivée d’oxygène";let. b ch. 4;1
+Soins de trachéotomie;Respiration;10206;B;9;"mettre gants et masque de protection
+ enlever la canule
+ nettoyer / soigner la peau autour de la stomie
+ nettoyer la canule
+ remettre la canule et la fixer avec compresses et bandages";let. b ch. 4;1
+Administrer les médicaments (i.v.);Thérapies sur prescription médicale;10604;B;20;"consulter le relevé de la prescription médicale
+ au besoin, consulter le prospectus du médicament
+ installer le client
+ préparer l’injection dans les règles de l’art
+ contrôler le flux et la perméabilité du système
+ injecter le médicament par voie veineuse dans les règles de l’art
+ observer les réactions du client";let. b ch. 7;1
+Administrer les médicaments (s.c ou i.m);Thérapies sur prescription médicale;10603;B;10;"consulter le relevé de la prescription médicale
+ au besoin, consulter le prospectus du médicament
+ préparer l’injection dans les règles de l’art
+ installer le client
+ injecter le médicament dans les règles de l’art
+ observer les réactions du client";let. b ch. 7;1
+Aider à la prise du traitement per os / collyre (sur délégation);Thérapies sur prescription médicale;10999;C;6;"aider / accompagner / stimuler le client à prendre ses médicaments après
+ vérification";let. c ch. 1;1
+Aide pour bain médicinal ou cataplasme;Thérapies sur prescription médicale;10615;B;30;"consulter le relevé de l’ordonnance médicale
+ chauffer le bain / cataplasme à température souhaitée
+ installer le client ou appliquer le cataplasme
+ surveiller le client pendant le temps d’application
+ aider le client à se sécher et s’habiller";let. b ch. 12;1
+Autres massages / frictions;Thérapies sur prescription médicale;10617;B;20;"dévêtir les parties du corps à masser
+ appliquer la pommade et frictionner
+ aider le client à se rhabiller";let. b ch. 7;1
+Collyre;Thérapies sur prescription médicale;10618;B;10;"consulter le relevé de la prescription médicale
+ appliquer le collyre selon la prescription";let. b ch. 7;1
+Donner les médicaments;Thérapies sur prescription médicale;10602;B;6;"consulter le relevé de la prescription médicale
+ donner les médicaments selon la prescription";let. b ch. 7;1
+Massages / autres traitements préventifs d’escarres;Thérapies sur prescription médicale;10616;C;20;"dévêtir les parties du corps à masser
+ appliquer la pommade et frictionner, ou faire autres traitements préventifs d’escarres
+ aider le client à se rhabiller";let. c ch. 1;1
+Médication i.v. (cathéter veineux permanent, inclus port-a-Cath);Thérapies sur prescription médicale;10607;B;15;"consulter le relevé de la prescription médicale et consulter le prospectus du médicament
+ préparer l’injection dans les règles de l’art
+ vérifier le retour sanguin du cathéter veineux
+ administrer le médicament dans les règles de l’art
+ s’assurer que le client ne ressent pas d’inconfort
+ observer les réactions du client
+ rincer le système
+ fermer ou retirer le cathéter";let. b ch. 9;1
+Médication i.v. par le biais du robinet à trois voies;Thérapies sur prescription médicale;10605;B;9;"consulter le relevé de la prescription médicale
+ au besoin, consulter le prospectus du médicament
+ préparer l’injection dans les règles de l’art
+ installer le client
+ contrôler la perméabilité du système en place
+ administrer le médicament dans les règles de l’art
+ observer les réactions du client
+ s’assurer du bon fonctionnement de la perfusion";let. b ch. 9;1
+Perfusion avec ponction veineuse;Thérapies sur prescription médicale;10606;B;20;"consulter le relevé de la prescription médicale
+ au besoin, consulter le prospectus du médicament
+ préparer l’injection dans les règles de l’art
+ installer la canule de perfusion dans la veine
+ contrôler le flux et la perméabilité du système
+ régler et observer la vitesse de la perfusion
+ fixer le cathéter veineux
+ contrôler à nouveau la vitesse de la perfusion
+ observer les réactions du client";let. b ch. 9;1
+Pose de voie veineuse;Thérapies sur prescription médicale;10612;B;12;"poser la voie veineuse périphérique à demeure (type Butterfly, Venflon, etc.) selon prescription médicale
+ ponctionner la veine et mettre l’aiguille, canule ou cathéter en place
+ fixer la canule et fermer l’orifice
+ informer / conseiller le client";let. b ch. 5;1
+Préparer les médicaments;Thérapies sur prescription médicale;10601;B;10;"préparer les médicaments selon prescription du médecin d’une manière
+ adéquate pour les besoins quotidiens ou hebdomadaires
+ assurer le ravitaillement en médicaments
+ au besoin, établir une liste d’approvisionnement de médicaments à l’intention du médecin ou du pharmacien";let. b ch. 7;1
+Présence pour thérapie par perfusion;Thérapies sur prescription médicale;10608;B;44;"consulter le relevé de la prescription médicale
+ au besoin, consulter le prospectus du médicament
+ contrôler la perfusion
+ contrôler les signes vitaux et observer les réactions du client
+ interrompre ou retirer la perfusion";let. b ch. 9;1
+Rinçage de cathéter type Hickmann / port-a-cath;Thérapies sur prescription médicale;10613;B;11;"installer le client après explications
+ rincer le cathéter selon instructions
+ inspecter la peau environnante et la soigner au besoin
+ informations / conseils au client";let. b ch. 9;1
+Thérapie par perfusion ou pompe s.c;Thérapies sur prescription médicale;10614;B;20;"Description : thérapie par perfusion sous-cutanée
+ préparer la perfusion
+ au besoin, selon prescription médicale, ajouter un médicament favorisant la résorption
+ faire la ponction sous-cutanée et relier la perfusion
+ contrôler le débit de la perfusion
+ contrôler l’état général du client
+ informations / conseils au client et à l’entourage
+ Description : thérapie par pompe sous-cutanée
+ préparer la perfusion et la pompe
+ purger le système
+ faire la ponction sous-cutanée
+ fixer l’aiguille
+ relier le tuyau de la perfusion à l’aiguille
+ régler les paramètres de la pompe selon les instructions du médecin
+ informations / conseils au client et à l’entourage";let. b ch. 9;1
+Transfusion sanguine;Thérapies sur prescription médicale;10610;B;120;"contrôle du groupe sanguin avec deuxième contrôle par une collègue
+ consulter les prescriptions médicales et les indications du centre de transfusion ou du laboratoire
+ préparer le sachet de sang
+ pratiquer la ponction veineuse
+ relier l’appareil de transfusion à l’accès veineux
+ contrôler le débit sanguin
+ observer les réactions du client
+ contrôler la position du bras
+ s’occuper du client pendant la transfusion
+ contrôle permanent des signes vitaux avant, pendant et après la transfusion
+ nettoyer l’endroit de la ponction après retrait de la transfusion, selon lesrègles de l’art
+ instruire le client sur le comportement à avoir lors d’effets secondaires(complications ultérieures)
+ documenter le n° de transfusion ainsi que l’état général du client";let. b ch. 9;1
+Visite pour contrôle de perfusion;Thérapies sur prescription médicale;10609;B;12;"contrôler l’état général et les signes vitaux du client
+ s’informer auprès du client ou de son entourage afin de savoir si la perfusion se déroule bien
+ contrôler le retour sanguin comme preuve de la position correcte du cathéter dans la veine
+ contrôler la vitesse du débit de la perfusion
+ contrôler l’appareil de perfusion";let. b ch. 9;1
+Consultation/directives à la personne;Psychiatrie;10001;A;30;;let. a ch. 2;1
+Acquérir et exercer des stratégies permettant de gérer la maladie;Psychiatrie;10002;B;30;;let. b ch. 13;1
+Surveiller et soutenir pour maîtriser des situations de crise et des phases diffi-ciles de la vie;Psychiatrie;10003;B;0;;let. b ch. 14;1
+Entraîner l'accomplissement et les techniques quotidiennes (par ex. faire les courses, préparer le repas);Psychiatrie;10004;C;5;;let. c ch. 2;1
+Planifier et structurer les journées de manière appropriée;Psychiatrie;10005;C;5;;let. c ch. 2;1
+Entraîner l'établissement des contacts sociaux et l'organisation des relations;Psychiatrie;10006;C;5;;let. c ch. 2;1
+Construction d'activité;Psychiatrie;10007;C;0;;let. c ch. 2;1
+Administrer et/ou contrôler les médicaments;Psychiatrie;10008;B;15;;let. b ch. 7;1
+Guider/soutenir l'entretien du logement;Psychiatrie;10009;C;0;;let. c ch. 2;1
+Guider/soutenir les soins corporels;Psychiatrie;10010;C;50;;let. c ch. 1;1
+Accompagner chez le médecin, à la clinique, dans d'autres institutions, dans les services publics;Psychiatrie;10011;C;0;;let. c ch. 2;1
+Apprendre à la personne à faire des courses;Psychiatrie;10012;C;0;;let. c ch. 2;1
+Organiser, planifier, coordonner la prise en charge avec le médecin et d’autres services et instances;Psychiatrie;10013;A;60;;let. a ch. 3;1
+Instruire pour la gestion des agressions, des angoisses et des idées para-noïaques;Psychiatrie;10014;B;30;;let. b ch. 13;1
+Soutien pour éviter les situations aiguës de mise en danger de soi-même ou d’autrui;Psychiatrie;10015;B;0;;let. b ch. 14;1
+Soutien pour utiliser des aides d'orientation et des mesures de sécurité;Psychiatrie;10016;B;0;;let. b ch. 13;1

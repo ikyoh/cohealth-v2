@@ -170,6 +170,12 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\OneToMany(targetEntity: Event::class, mappedBy: 'owner', orphanRemoval: true)]
     private Collection $events;
 
+    /**
+     * @var Collection<int, Observation>
+     */
+    #[ORM\OneToMany(targetEntity: Observation::class, mappedBy: 'owner', orphanRemoval: true)]
+    private Collection $observations;
+
     #[ORM\OneToOne(targetEntity: MediaAvatar::class)]
     #[Groups(["user:write", "users:read", "user:read"])]
     private ?MediaAvatar $avatar = null;
@@ -243,6 +249,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->patients = new ArrayCollection();
         $this->prescriptions = new ArrayCollection();
         $this->events = new ArrayCollection();
+        $this->observations = new ArrayCollection();
     }
 
 

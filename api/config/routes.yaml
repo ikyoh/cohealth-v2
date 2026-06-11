@@ -8,3 +8,7 @@ send_email:
     path: /api/send-email
     controller: App\Controller\SendEmailController::sendEmail
     methods: [POST]
+
+auth:
+    path: /auth
+    methods: ['POST']
