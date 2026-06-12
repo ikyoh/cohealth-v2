@@ -1,5 +1,5 @@
 "use client";
-import { Clock, GripVertical } from "lucide-react";
+import { Clock, GripVertical, Pencil, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 // import "./styles.css";
@@ -8,10 +8,25 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useGetCollection, useGetIRI } from "@/hooks/useQuery";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { useCombinedQueries, useGetCollection, useGetIRI } from "@/hooks/useQuery";
+import { request } from "@/utils/axios.utils";
+import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "@/utils/dayjs.config";
 import { useSearchParams } from "next/navigation";
 
@@ -35,14 +50,22 @@ const getCalendarDate = (value) => {
   }
 
   if (value && typeof value === "object" && typeof value.date === "string") {
+    if (value.isException) {
+      return dayjs(value.date).tz(CALENDAR_TIMEZONE)
+    }
+
     // RRule returns the intended wall-clock time but labels it as UTC.
     return dayjs.tz(value.date, CALENDAR_TIMEZONE)
   }
 
   return dayjs(value).tz(CALENDAR_TIMEZONE)
 }
+const formatOccurrenceDate = (value) =>
+  getCalendarDate(value).format("YYYY-MM-DDTHH:mm:ss")
 const rangesOverlap = (first, second) => first.y < second.y + second.h && second.y < first.y + first.h
 const getIri = (value) => typeof value === "string" ? value : value?.["@id"] || value?.iri
+const getServiceKey = (service) =>
+  service?.["@id"] || service?.uuid || String(service?.id || `${service?.family}-${service?.name}`)
 
 const assignOverlapLanes = (items) => {
   const positionedItems = [];
@@ -105,6 +128,7 @@ const assignOverlapLanes = (items) => {
 
 export default function GridWeek({ mission }) {
 
+  const queryClient = useQueryClient()
   const searchParams = useSearchParams()
   const date = searchParams.get('date') || dayjs().format('YYYY-MM-DD')
   const selectedPatient = searchParams.get('patient') || ""
@@ -127,10 +151,33 @@ export default function GridWeek({ mission }) {
     searchParams: eventSearchParams.toString(),
   });
   const { data: currentUser } = useGetIRI("/current_user");
+  const { data: missionData } = useGetIRI(mission || "");
+  const { data: servicesData, isLoading: isLoadingServices } = useGetCollection({
+    entity: "services",
+    searchParams: "pagination=false",
+  });
+  const missionOwnerIris = (missionData?.owners || [])
+    .filter(owner => typeof owner === "string");
+  const embeddedMissionCooperators = (missionData?.owners || [])
+    .filter(owner => typeof owner === "object");
+  const { data: fetchedMissionCooperators = [] } = useCombinedQueries(missionOwnerIris);
+  const missionCooperators = [
+    ...embeddedMissionCooperators,
+    ...fetchedMissionCooperators.filter(Boolean),
+  ];
 
   const [mounted, setmounted] = useState(false);
   const [layout, setlayout] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [editingOccurrence, setEditingOccurrence] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [createForm, setCreateForm] = useState(null);
+  const [createServiceFamily, setCreateServiceFamily] = useState("all");
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
   const layouts = useMemo(() => ({
     lg: layout,
     md: layout,
@@ -147,6 +194,93 @@ export default function GridWeek({ mission }) {
 
     return getIri(event.owner) === currentUserIri
       && (!event.cooperators || event.cooperators.length === 0)
+  }
+
+  const missionOwnerIri = getIri(missionData?.owner)
+  const isMissionOwner = missionOwnerIri && missionOwnerIri === currentUser?.iri
+  const availableServices = servicesData?.member || []
+  const serviceFamilies = [...new Set(
+    availableServices.map(service => service.family).filter(Boolean)
+  )].sort((first, second) => first.localeCompare(second, "fr"))
+  const filteredCreateServices = availableServices.filter(service =>
+    createServiceFamily === "all" || service.family === createServiceFamily
+  )
+  const selectedCreateServices = availableServices.filter(service =>
+    createForm?.serviceKeys?.includes(getServiceKey(service))
+  )
+  const createDuration = selectedCreateServices.reduce(
+    (duration, service) => duration + Number(service.duration || 0),
+    0,
+  )
+
+  const openCreateEvent = (event) => {
+    if (!mission || !missionData) return
+
+    const bounds = event.currentTarget.getBoundingClientRect()
+    const x = Math.max(0, Math.min(bounds.width - 1, event.clientX - bounds.left))
+    const y = Math.max(0, Math.min(1439, event.clientY - bounds.top))
+    const day = Math.floor((x / bounds.width) * 7)
+    const block = Math.floor(y / 15)
+    const beginDate = startOfWeek
+      .add(day, "day")
+      .startOf("day")
+      .add(block * MINUTES_PER_BLOCK, "minute")
+
+    setCreateError("")
+    setCreateServiceFamily("all")
+    setCreateForm({
+      beginDate: beginDate.format("YYYY-MM-DDTHH:mm"),
+      cooperatorIri: isMissionOwner ? "unassigned" : currentUser?.iri || "",
+      serviceKeys: [],
+    })
+  }
+
+  const createEvent = async () => {
+    if (!createForm || selectedCreateServices.length === 0 || createDuration <= 0) return
+
+    setIsCreating(true)
+    setCreateError("")
+
+    try {
+      const beginDate = dayjs.tz(createForm.beginDate, CALENDAR_TIMEZONE)
+      const cooperator = missionCooperators.find(
+        item => getIri(item) === createForm.cooperatorIri
+      )
+      const services = selectedCreateServices.map(service => {
+        const nextService = { ...service }
+
+        if (cooperator) {
+          nextService.cooperator = cooperator
+        } else {
+          delete nextService.cooperator
+        }
+
+        return nextService
+      })
+      const patientName = getPatientNameFromMission(missionData)
+
+      await request({
+        url: "/events",
+        method: "post",
+        data: {
+          mission,
+          title: patientName || "Intervention",
+          description: "",
+          beginDate: beginDate.toISOString(),
+          endDate: beginDate.add(createDuration, "minute").toISOString(),
+          duration: createDuration,
+          isAllday: false,
+          services,
+        },
+      })
+
+      await refreshEvents()
+      setCreateForm(null)
+    } catch (error) {
+      setCreateError(error?.response?.data?.detail || "La création de l’événement a échoué.")
+    } finally {
+      setIsCreating(false)
+    }
   }
 
   const EventItem = ({ item }) => {
@@ -219,6 +353,21 @@ export default function GridWeek({ mission }) {
     return new Set(participantIris.map(iri => iri.split("/").pop()))
   }
 
+  const getEventCooperatorKey = (event) => {
+    const cooperatorIris = [
+      ...(event.cooperators || []).map(getIri),
+      ...(event.services || []).map(service => getIri(service.cooperator)),
+    ].filter(Boolean)
+
+    const cooperatorUuids = [...new Set(
+      cooperatorIris.map(iri => iri.split("/").pop()),
+    )].sort()
+
+    return cooperatorUuids.length > 0
+      ? cooperatorUuids.join(",")
+      : "without-cooperator"
+  }
+
   const matchesSelectedCooperators = (event) => {
     if (selectedCooperators.length === 0) {
       return true
@@ -238,6 +387,12 @@ export default function GridWeek({ mission }) {
   );
 
   const getEventDuration = (event) => {
+    const explicitDuration = Number(event.duration || 0)
+
+    if (explicitDuration > 0) {
+      return explicitDuration
+    }
+
     const servicesDuration = event.services?.reduce(
       (duration, service) => duration + Number(service.duration || 0),
       0,
@@ -279,27 +434,14 @@ export default function GridWeek({ mission }) {
   }
 
   const calcHeight = (event) => {
-    const totalDuration = event.services?.reduce((acc, service) => acc + (service.duration || 0), 0) || 0
-
-    if (totalDuration > 0) {
-      return Math.max(1, Math.ceil(totalDuration / MINUTES_PER_BLOCK))
-    }
-
-    const beginDate = getCalendarDate(event.beginDate)
-    const endDate = getCalendarDate(event.endDate)
-    const eventDuration = endDate.diff(beginDate, "minute")
-
-    if (eventDuration > 0) {
-      return Math.max(1, Math.ceil(eventDuration / MINUTES_PER_BLOCK))
-    }
-
-    return 1
+    return Math.max(1, Math.ceil(getEventDuration(event) / MINUTES_PER_BLOCK))
   }
 
   const calcEventsHeight = (events, fallbackHeight = 1) => {
-    const totalDuration = events.reduce((acc, event) => {
-      return acc + (event.services?.reduce((sum, service) => sum + (service.duration || 0), 0) || 0)
-    }, 0)
+    const totalDuration = events.reduce(
+      (duration, event) => duration + getEventDuration(event),
+      0,
+    )
 
     if (totalDuration > 0) {
       return Math.max(1, Math.ceil(totalDuration / MINUTES_PER_BLOCK))
@@ -314,6 +456,7 @@ export default function GridWeek({ mission }) {
         event,
         occurrenceDate: getCalendarDate(event.beginDate),
         missionKey: getMissionKey(event),
+        cooperatorKey: getEventCooperatorKey(event),
         i: event.uuid,
         x: calcX(event.beginDate),
         y: calcY(event.beginDate),
@@ -325,15 +468,35 @@ export default function GridWeek({ mission }) {
       .filter(rEvent => getCalendarDate(rEvent).isBetween(startOfWeek, endOfWeek, null, "[]"))
       .map((rEvent, index) => {
         const occurrenceDate = getCalendarDate(rEvent)
+        const exceptionDuration = rEvent.isException && rEvent.endDate
+          ? getCalendarDate({ ...rEvent, date: rEvent.endDate })
+            .diff(occurrenceDate, "minute")
+          : null
+        const occurrenceEvent = rEvent.isException
+          ? {
+            ...event,
+            title: rEvent.title ?? event.title,
+            description: rEvent.description ?? event.description,
+            isAllday: rEvent.isAllday ?? event.isAllday,
+            services: rEvent.services ?? event.services,
+            duration: exceptionDuration > 0
+              ? exceptionDuration
+              : event.duration,
+          }
+          : event
 
         return {
-          event,
+          event: occurrenceEvent,
           occurrenceDate,
+          originalDate: getCalendarDate(rEvent.originalDate || rEvent.date),
+          originalDateValue: rEvent.originalDate || rEvent.date,
+          isException: !!rEvent.isException,
           missionKey: getMissionKey(event),
+          cooperatorKey: getEventCooperatorKey(occurrenceEvent),
           i: event.uuid + "_" + index,
           x: calcX(occurrenceDate),
           y: calcY(occurrenceDate),
-          h: calcHeight(event),
+          h: calcHeight(occurrenceEvent),
         }
       })
   }
@@ -344,6 +507,7 @@ export default function GridWeek({ mission }) {
       .reduce((groups, occurrence) => {
         let group = groups.find(item =>
           item.missionKey === occurrence.missionKey &&
+          item.cooperatorKey === occurrence.cooperatorKey &&
           item.x === occurrence.x &&
           rangesOverlap(item, occurrence)
         )
@@ -368,6 +532,7 @@ export default function GridWeek({ mission }) {
         let linkedGroup = groups.find(item =>
           item !== group &&
           item.missionKey === group.missionKey &&
+          item.cooperatorKey === group.cooperatorKey &&
           item.x === group.x &&
           rangesOverlap(item, group)
         )
@@ -383,6 +548,7 @@ export default function GridWeek({ mission }) {
           linkedGroup = groups.find(item =>
             item !== group &&
             item.missionKey === group.missionKey &&
+            item.cooperatorKey === group.cooperatorKey &&
             item.x === group.x &&
             rangesOverlap(item, group)
           )
@@ -419,9 +585,189 @@ export default function GridWeek({ mission }) {
     setSelectedItem(null)
   }, [date, selectedCooperatorKey, selectedPatient]);
 
-  const onDragStop = (layout, oldItem, newItem, placeholder, e, element) => {
-    console.log("DRAG STOP");
-    console.log("Item déplacé:", newItem);
+  const refreshEvents = () =>
+    queryClient.invalidateQueries({ queryKey: ["events"] })
+
+  const getOccurrenceEnd = (occurrence, beginDate = occurrence.occurrenceDate) =>
+    beginDate.add(getEventDuration(occurrence.event), "minute")
+
+  const shiftRecurrenceRule = (rule, deltaMinutes) => {
+    if (!rule || deltaMinutes === 0) return rule
+
+    return rule.replace(
+      /(DTSTART:|UNTIL=)(\d{8}T\d{6})/g,
+      (_match, prefix, value) =>
+        `${prefix}${dayjs(value, "YYYYMMDDTHHmmss").add(deltaMinutes, "minute").format("YYYYMMDDTHHmmss")}`,
+    )
+  }
+
+  const patchSeries = async (occurrence, changes) => {
+    const event = occurrence.event
+    const deltaMinutes = changes.beginDate
+      ? dayjs(changes.beginDate).diff(occurrence.occurrenceDate, "minute")
+      : 0
+    const payload = {
+      iri: event["@id"] || `/events/${event.uuid}`,
+      ...(changes.title !== undefined && { title: changes.title }),
+      ...(changes.description !== undefined && { description: changes.description }),
+      ...(changes.isAllday !== undefined && { isAllday: changes.isAllday }),
+      ...(changes.duration !== undefined && { duration: Number(changes.duration) }),
+    }
+
+    if (!event.recurrenceRule) {
+      const beginDate = changes.beginDate
+        ? dayjs(changes.beginDate)
+        : occurrence.occurrenceDate
+      const duration = Number(changes.duration || getEventDuration(event))
+
+      if (changes.beginDate) {
+        payload.beginDate = beginDate.toISOString()
+      }
+
+      payload.endDate = beginDate.add(duration, "minute").toISOString()
+    } else if (deltaMinutes !== 0) {
+      payload.beginDate = getCalendarDate(event.beginDate).add(deltaMinutes, "minute").toISOString()
+      payload.endDate = getCalendarDate(event.endDate).add(deltaMinutes, "minute").toISOString()
+      payload.recurrenceRule = shiftRecurrenceRule(event.recurrenceRule, deltaMinutes)
+    }
+
+    await request({
+      url: payload.iri,
+      method: "patch",
+      data: Object.fromEntries(Object.entries(payload).filter(([key]) => key !== "iri")),
+    })
+  }
+
+  const updateOccurrence = async (occurrence, changes) => {
+    const beginDate = changes.beginDate
+      ? dayjs(changes.beginDate)
+      : occurrence.occurrenceDate
+    const duration = Number(changes.duration || getEventDuration(occurrence.event))
+
+    await request({
+      url: `/events/${occurrence.event.uuid}/occurrence`,
+      method: "post",
+      data: {
+        action: "update",
+        originalDate: occurrence.originalDateValue
+          || formatOccurrenceDate(occurrence.originalDate || occurrence.occurrenceDate),
+        beginDate: formatOccurrenceDate(beginDate),
+        endDate: formatOccurrenceDate(beginDate.add(duration, "minute")),
+        ...(changes.title !== undefined && { title: changes.title }),
+        ...(changes.description !== undefined && { description: changes.description }),
+        ...(changes.isAllday !== undefined && { isAllday: changes.isAllday }),
+      },
+    })
+  }
+
+  const executePendingAction = async (scope) => {
+    if (!pendingAction) return
+
+    setIsSaving(true)
+    setActionError("")
+
+    try {
+      for (const item of pendingAction.items) {
+        const appliesToSeries = scope === "series" && !item.isException
+        const itemChanges = pendingAction.deltaMinutes === undefined
+          ? pendingAction.changes
+          : {
+            ...pendingAction.changes,
+            beginDate: item.occurrenceDate
+              .add(pendingAction.deltaMinutes, "minute")
+              .toISOString(),
+          }
+
+        if (pendingAction.type === "delete") {
+          if (appliesToSeries || !item.event.recurrenceRule) {
+            await request({
+              url: item.event["@id"] || `/events/${item.event.uuid}`,
+              method: "delete",
+              data: undefined,
+            })
+          } else {
+            await request({
+              url: `/events/${item.event.uuid}/occurrence`,
+              method: "post",
+              data: {
+                action: "delete",
+                originalDate: item.originalDateValue
+                  || formatOccurrenceDate(item.originalDate || item.occurrenceDate),
+              },
+            })
+          }
+        } else if (appliesToSeries || !item.event.recurrenceRule) {
+          await patchSeries(item, itemChanges)
+        } else {
+          await updateOccurrence(item, itemChanges)
+        }
+      }
+
+      await refreshEvents()
+      setPendingAction(null)
+      setEditingOccurrence(null)
+      setSelectedItem(null)
+    } catch (error) {
+      setActionError(error?.response?.data?.detail || "La modification a échoué.")
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const cancelPendingAction = async () => {
+    setPendingAction(null)
+    setActionError("")
+    await refreshEvents()
+  }
+
+  const onDragStop = async (_layout, oldItem, newItem) => {
+    const movedItem = layout.find(item => item.i === newItem.i)
+    const occurrences = movedItem?.occurrences || []
+
+    if (occurrences.length === 0) return
+
+    const day = Math.floor(newItem.x / DAY_COLUMN_UNITS)
+    const beginDate = startOfWeek
+      .add(day, "day")
+      .startOf("day")
+      .add(newItem.y * MINUTES_PER_BLOCK, "minute")
+    const deltaMinutes = beginDate.diff(occurrences[0].occurrenceDate, "minute")
+
+    if (!occurrences.some(item => !!item.event.recurrenceRule)) {
+      setIsSaving(true)
+      setActionError("")
+
+      try {
+        for (const occurrence of occurrences) {
+          await patchSeries(occurrence, {
+            beginDate: occurrence.occurrenceDate
+              .add(deltaMinutes, "minute")
+              .toISOString(),
+          })
+        }
+
+        await refreshEvents()
+      } catch (error) {
+        setActionError(error?.response?.data?.detail || "Le déplacement a échoué.")
+        setlayout(currentLayout => currentLayout.map(item =>
+          item.i === oldItem.i
+            ? { ...item, x: oldItem.x, y: oldItem.y }
+            : item
+        ))
+      } finally {
+        setIsSaving(false)
+      }
+
+      return
+    }
+
+    setPendingAction({
+      type: "update",
+      items: occurrences,
+      changes: {},
+      deltaMinutes,
+      recurring: occurrences.some(item => !!item.event.recurrenceRule && !item.isException),
+    })
   };
 
   const onDrop = (layout, layoutItem, _event) => {
@@ -430,7 +776,17 @@ export default function GridWeek({ mission }) {
 
   return (
     <>
-      <div className="absolute top-[71px] left-0 z-20 w-full">
+      {mission && (
+        <div
+          className="absolute top-[71px] left-0 z-10 h-[1440px] w-full cursor-crosshair"
+          onClick={openCreateEvent}
+          aria-label="Ajouter un événement"
+        />
+      )}
+      <div
+        className="absolute top-[71px] left-0 z-20 w-full"
+        onClick={openCreateEvent}
+      >
         <ResponsiveReactGridLayout
           rowHeight={15}
           maxRows={96}
@@ -467,6 +823,7 @@ export default function GridWeek({ mission }) {
                 key={item.i}
                 data-grid={item}
                 title={hasConcurrentEvents ? `${item.overlapCount} événements simultanés` : undefined}
+                onClick={event => event.stopPropagation()}
                 className={`flex items-start justify-between overflow-hidden rounded border shadow-sm ${isPrimaryItem
                   ? "border-primary bg-primary text-seconcary-foreground"
                   : "bg-secondary/70 text-secondary-foreground"
@@ -481,6 +838,150 @@ export default function GridWeek({ mission }) {
           })}
         </ResponsiveReactGridLayout >
       </div >
+      <Dialog
+        open={!!createForm}
+        onOpenChange={(open) => {
+          if (!open) {
+            setCreateForm(null)
+            setCreateError("")
+          }
+        }}
+      >
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle>Ajouter un événement</DialogTitle>
+            <DialogDescription>
+              Sélectionnez les services à réaliser. La durée est calculée automatiquement.
+            </DialogDescription>
+          </DialogHeader>
+          {createForm && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="create-event-begin">Début</Label>
+                <Input
+                  id="create-event-begin"
+                  type="datetime-local"
+                  value={createForm.beginDate}
+                  onChange={event => setCreateForm(current => ({
+                    ...current,
+                    beginDate: event.target.value,
+                  }))}
+                />
+              </div>
+              {isMissionOwner && (
+                <div className="space-y-2">
+                  <Label>Cooperator</Label>
+                  <Select
+                    value={createForm.cooperatorIri}
+                    onValueChange={cooperatorIri => setCreateForm(current => ({
+                      ...current,
+                      cooperatorIri,
+                    }))}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Non attribué" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="unassigned">Non attribué</SelectItem>
+                      {missionCooperators.map(cooperator => {
+                        const iri = getIri(cooperator)
+
+                        return (
+                          <SelectItem key={iri} value={iri}>
+                            {[cooperator.firstname, cooperator.lastname].filter(Boolean).join(" ") || iri}
+                          </SelectItem>
+                        )
+                      })}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="space-y-2">
+                <Label>Services</Label>
+                <Select
+                  value={createServiceFamily}
+                  onValueChange={setCreateServiceFamily}
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Filtrer par famille" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Toutes les familles</SelectItem>
+                    {serviceFamilies.map(family => (
+                      <SelectItem key={family} value={family}>
+                        {family}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <div className="max-h-64 space-y-2 overflow-y-auto rounded-md border p-3">
+                  {filteredCreateServices.map((service) => {
+                    const serviceKey = getServiceKey(service)
+                    const checked = createForm.serviceKeys.includes(serviceKey)
+
+                    return (
+                      <label
+                        key={serviceKey}
+                        className="flex cursor-pointer items-start gap-3 rounded-md p-2 hover:bg-muted"
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={(nextChecked) => setCreateForm(current => ({
+                            ...current,
+                            serviceKeys: nextChecked
+                              ? [...current.serviceKeys, serviceKey]
+                              : current.serviceKeys.filter(key => key !== serviceKey),
+                          }))}
+                        />
+                        <span className="min-w-0 flex-1">
+                          <span className="block text-sm font-medium">{service.name}</span>
+                          <span className="text-muted-foreground block text-xs">
+                            {service.duration} min
+                          </span>
+                        </span>
+                      </label>
+                    )
+                  })}
+                  {isLoadingServices && (
+                    <p className="text-muted-foreground text-sm">
+                      Chargement des services…
+                    </p>
+                  )}
+                  {!isLoadingServices && filteredCreateServices.length === 0 && (
+                    <p className="text-muted-foreground text-sm">
+                      Aucun service n’est disponible dans cette famille.
+                    </p>
+                  )}
+                </div>
+              </div>
+              <div className="rounded-md bg-muted px-3 py-2 text-sm">
+                Durée totale : <strong>{createDuration} minutes</strong>
+              </div>
+              {createError && (
+                <p className="text-destructive text-sm">{createError}</p>
+              )}
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="cancel"
+              disabled={isCreating}
+              onClick={() => setCreateForm(null)}
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              loading={isCreating}
+              disabled={isCreating || selectedCreateServices.length === 0 || createDuration <= 0}
+              onClick={createEvent}
+            >
+              Créer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
       <Dialog open={!!selectedItem} onOpenChange={(open) => !open && setSelectedItem(null)}>
         <DialogContent className="max-h-[calc(100vh-100px)] overflow-y-auto">
           <DialogHeader>
@@ -516,6 +1017,41 @@ export default function GridWeek({ mission }) {
                         )}
                       </div>
                     ))}
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          const beginDate = occurrence.occurrenceDate
+                          setEditingOccurrence(occurrence)
+                          setEditForm({
+                            title: occurrence.event.title || "",
+                            description: occurrence.event.description || "",
+                            beginDate: beginDate.format("YYYY-MM-DDTHH:mm"),
+                            duration: getEventDuration(occurrence.event),
+                            isAllday: !!occurrence.event.isAllday,
+                          })
+                        }}
+                      >
+                        <Pencil />
+                        Modifier
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => setPendingAction({
+                          type: "delete",
+                          items: [occurrence],
+                          changes: {},
+                          recurring: !!occurrence.event.recurrenceRule && !occurrence.isException,
+                        })}
+                      >
+                        <Trash2 />
+                        Supprimer
+                      </Button>
+                    </div>
                   </div>
                 );
               })}
@@ -523,6 +1059,140 @@ export default function GridWeek({ mission }) {
           ) : (
             <p className="text-muted-foreground text-sm">Aucun service renseigné.</p>
           )}
+        </DialogContent>
+      </Dialog>
+      <Dialog
+        open={!!editingOccurrence}
+        onOpenChange={(open) => {
+          if (!open) {
+            setEditingOccurrence(null)
+            setEditForm(null)
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier l’événement</DialogTitle>
+            <DialogDescription>
+              Modifiez cette occurrence puis choisissez si la modification concerne la série.
+            </DialogDescription>
+          </DialogHeader>
+          {editForm && (
+            <div className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="event-title">Titre</Label>
+                <Input
+                  id="event-title"
+                  value={editForm.title}
+                  onChange={event => setEditForm(current => ({ ...current, title: event.target.value }))}
+                />
+              </div>
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="event-begin">Début</Label>
+                  <Input
+                    id="event-begin"
+                    type="datetime-local"
+                    value={editForm.beginDate}
+                    onChange={event => setEditForm(current => ({ ...current, beginDate: event.target.value }))}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="event-duration">Durée (minutes)</Label>
+                  <Input
+                    id="event-duration"
+                    type="number"
+                    min={1}
+                    step={5}
+                    value={editForm.duration ?? ""}
+                    onChange={event => setEditForm(current => ({
+                      ...current,
+                      duration: Number(event.target.value),
+                    }))}
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="event-description">Description</Label>
+                <Textarea
+                  id="event-description"
+                  value={editForm.description}
+                  onChange={event => setEditForm(current => ({ ...current, description: event.target.value }))}
+                />
+              </div>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={editForm.isAllday}
+                  onChange={event => setEditForm(current => ({ ...current, isAllday: event.target.checked }))}
+                />
+                Journée entière
+              </label>
+            </div>
+          )}
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="cancel"
+              onClick={() => {
+                setEditingOccurrence(null)
+                setEditForm(null)
+              }}
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              disabled={!editForm || Number(editForm.duration) <= 0}
+              onClick={() => {
+                setPendingAction({
+                  type: "update",
+                  items: [editingOccurrence],
+                  changes: editForm,
+                  recurring: !!editingOccurrence.event.recurrenceRule && !editingOccurrence.isException,
+                })
+                setEditingOccurrence(null)
+                setEditForm(null)
+              }}
+            >
+              Continuer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      <Dialog open={!!pendingAction} onOpenChange={(open) => !open && cancelPendingAction()}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {pendingAction?.type === "delete" ? "Supprimer l’événement" : "Modifier l’événement"}
+            </DialogTitle>
+            <DialogDescription>
+              {pendingAction?.recurring
+                ? "Cet événement est récurrent. Choisissez la portée de l’action."
+                : "Confirmez cette action."}
+            </DialogDescription>
+          </DialogHeader>
+          {actionError && (
+            <p className="text-destructive text-sm" role="alert">{actionError}</p>
+          )}
+          <DialogFooter>
+            <Button type="button" variant="cancel" onClick={cancelPendingAction} disabled={isSaving}>
+              Annuler
+            </Button>
+            {pendingAction?.recurring && (
+              <Button type="button" variant="outline" onClick={() => executePendingAction("occurrence")} loading={isSaving}>
+                Cette occurrence
+              </Button>
+            )}
+            <Button
+              type="button"
+              variant={pendingAction?.type === "delete" ? "destructive" : "default"}
+              onClick={() => executePendingAction("series")}
+              loading={isSaving}
+            >
+              {pendingAction?.recurring ? "Toute la série" : "Confirmer"}
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
     </>

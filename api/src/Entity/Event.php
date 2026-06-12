@@ -40,19 +40,19 @@ use RRule\RRule;
                 security: "object.getMission() ? is_granted('MISSION_VIEW', object.getMission()) : object.getOwner() == user"
             ),
             new Put(
-                security: "object.getMission() ? is_granted('MISSION_EDIT', object.getMission()) : object.getOwner() == user",
+                security: "object.getMission() ? (is_granted('MISSION_EDIT', object.getMission()) or user in object.getCooperators()) : object.getOwner() == user",
                 processor: EventProcessor::class
             ),
             new Patch(
-                security: "object.getMission() ? is_granted('MISSION_EDIT', object.getMission()) : object.getOwner() == user",
+                security: "object.getMission() ? (is_granted('MISSION_EDIT', object.getMission()) or user in object.getCooperators()) : object.getOwner() == user",
                 processor: EventProcessor::class
             ),
             new Delete(
-                security: "object.getMission() ? is_granted('MISSION_EDIT', object.getMission()) : object.getOwner() == user"
+                security: "object.getMission() ? (is_granted('MISSION_EDIT', object.getMission()) or user in object.getCooperators()) : object.getOwner() == user"
             ),
             new GetCollection(security: "is_granted('ROLE_USER')"),
             new Post(
-                securityPostDenormalize: "object.getMission() ? is_granted('MISSION_EDIT', object.getMission()) : object.getOwner() == user",
+                securityPostDenormalize: "object.getMission() ? is_granted('MISSION_VIEW', object.getMission()) : object.getOwner() == user",
                 processor: EventProcessor::class
             ),
         ]
@@ -89,6 +89,11 @@ class Event implements UserOwnedInterface
     #[Groups(["event:write", "events:read", "event:read"])]
     private ?\DateTimeInterface $endDate = null;
 
+    #[ORM\Column(nullable: true)]
+    #[Groups(["event:write", "events:read", "event:read"])]
+    #[Assert\Positive]
+    private ?int $duration = null;
+
     #[ORM\Column(length: 255)]
     #[Groups(["event:write", "events:read", "event:read"])]
     private ?string $title = null;
@@ -122,10 +127,17 @@ class Event implements UserOwnedInterface
     #[Groups(["events:read", "event:read"])]
     private Collection $cooperators;
 
+    /**
+     * @var Collection<int, EventException>
+     */
+    #[ORM\OneToMany(targetEntity: EventException::class, mappedBy: 'event', orphanRemoval: true)]
+    private Collection $exceptions;
+
     public function __construct()
     {
         $this->uuid = Uuid::v7();
         $this->cooperators = new ArrayCollection();
+        $this->exceptions = new ArrayCollection();
     }
 
     #[Groups(["events:read", "event:read"])]
@@ -149,8 +161,39 @@ class Event implements UserOwnedInterface
         $rrule = new RRule($this->recurrenceRule);
 
         $occurrences = $rrule->getOccurrencesBetween($this->beginDate->format('Ymd\THis'), $this->endDate->format('Ymd\THis'));
+        $exceptions = [];
 
-        return json_encode($occurrences);
+        foreach ($this->exceptions as $exception) {
+            if ($exception->getOriginalDate() !== null) {
+                $exceptions[$exception->getOriginalDate()->format('Y-m-d H:i:s')] = $exception;
+            }
+        }
+
+        $result = [];
+
+        foreach ($occurrences as $occurrence) {
+            $originalDate = $occurrence instanceof \DateTimeImmutable
+                ? $occurrence
+                : \DateTimeImmutable::createFromMutable($occurrence);
+            $exception = $exceptions[$originalDate->format('Y-m-d H:i:s')] ?? null;
+
+            if ($exception?->isCancelled()) {
+                continue;
+            }
+
+            $result[] = [
+                'date' => ($exception?->getRescheduledDate() ?? $originalDate)->format(\DateTimeInterface::ATOM),
+                'endDate' => $exception?->getRescheduledEnd()?->format(\DateTimeInterface::ATOM),
+                'originalDate' => $originalDate->format(\DateTimeInterface::ATOM),
+                'isException' => $exception !== null,
+                'title' => $exception?->getTitle(),
+                'description' => $exception?->getDescription(),
+                'isAllday' => $exception?->getIsAllday(),
+                'services' => $exception?->getServices(),
+            ];
+        }
+
+        return json_encode($result);
     }
 
     public function getId(): ?int
@@ -196,6 +239,18 @@ class Event implements UserOwnedInterface
     public function setEndDate(\DateTimeInterface $endDate): static
     {
         $this->endDate = $endDate;
+
+        return $this;
+    }
+
+    public function getDuration(): ?int
+    {
+        return $this->duration;
+    }
+
+    public function setDuration(?int $duration): static
+    {
+        $this->duration = $duration;
 
         return $this;
     }
@@ -326,6 +381,75 @@ class Event implements UserOwnedInterface
         }
 
         return $this;
+    }
+
+    /**
+     * @return Collection<int, EventException>
+     */
+    public function getExceptions(): Collection
+    {
+        return $this->exceptions;
+    }
+
+    public function addException(EventException $exception): static
+    {
+        if (!$this->exceptions->contains($exception)) {
+            $this->exceptions->add($exception);
+            $exception->setEvent($this);
+        }
+
+        return $this;
+    }
+
+    public function removeException(EventException $exception): static
+    {
+        if ($this->exceptions->removeElement($exception) && $exception->getEvent() === $this) {
+            $exception->setEvent(null);
+        }
+
+        return $this;
+    }
+
+    public function realignExceptionAnchors(string $previousRule): void
+    {
+        $currentRule = $this->recurrenceRule;
+
+        if ($currentRule === null || $previousRule === $currentRule) {
+            return;
+        }
+
+        $previousStart = $this->extractRecurrenceStart($previousRule);
+        $currentStart = $this->extractRecurrenceStart($currentRule);
+
+        if ($previousStart === null || $currentStart === null) {
+            return;
+        }
+
+        $shift = $currentStart->getTimestamp() - $previousStart->getTimestamp();
+
+        if ($shift === 0) {
+            return;
+        }
+
+        foreach ($this->exceptions as $exception) {
+            $originalDate = $exception->getOriginalDate();
+
+            if ($originalDate !== null) {
+                // Only the series anchor moves. Exception overrides stay untouched.
+                $exception->setOriginalDate($originalDate->modify(sprintf('%+d seconds', $shift)));
+            }
+        }
+    }
+
+    private function extractRecurrenceStart(string $rule): ?\DateTimeImmutable
+    {
+        if (!preg_match('/(?:^|\n)DTSTART:(\d{8}T\d{6})/', $rule, $matches)) {
+            return null;
+        }
+
+        $date = \DateTimeImmutable::createFromFormat('!Ymd\THis', $matches[1]);
+
+        return $date ?: null;
     }
 
     #[Assert\Callback]

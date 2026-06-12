@@ -16,6 +16,7 @@ import OpasActions from "../../opas-actions";
 import DocumentsSummary from "./documents-summary";
 import DocumentsTab from "./documents-tab";
 import ObservationsTab from "./observations-tab";
+import BillingTab from "./billing-tab";
 
 const getIri = (value: unknown): string => {
   if (typeof value === "string") return value;
@@ -199,7 +200,9 @@ export default function MissionPage() {
         <TabsContent value="documents">
           <DocumentsTab missionIri={iri} canManage={isMissionOwner} />
         </TabsContent>
-        <TabsContent value="facturation">Facturation</TabsContent>
+        <TabsContent value="facturation">
+          <BillingTab missionIri={iri} owner={owner} cooperators={owners} />
+        </TabsContent>
       </Tabs >
 
     </PageContent >

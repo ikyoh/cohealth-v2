@@ -2,39 +2,51 @@
 
 namespace App\Entity;
 
-use ApiPlatform\Metadata\ApiResource;
-use ApiPlatform\Metadata\ApiProperty;
 use App\Repository\EventExceptionRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Uid\Uuid;
 use Symfony\Bridge\Doctrine\Types\UuidType;
 
 #[ORM\Entity(repositoryClass: EventExceptionRepository::class)]
-#[ApiResource]
+#[ORM\UniqueConstraint(name: 'uniq_event_exception_occurrence', columns: ['event_id', 'original_date'])]
 class EventException
 {
     #[ORM\Id]
-    #[ApiProperty(identifier: false)]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     private ?int $id = null;
 
-    #[ApiProperty(identifier: true)]
     #[ORM\Column(type: UuidType::NAME, unique: true)]
     #[ORM\CustomIdGenerator(class: 'doctrine.uuid_generator')]
     private Uuid $uuid;
 
-    #[ORM\Column]
-    private ?\DateTime $originalDate = null;
+    #[ORM\ManyToOne(inversedBy: 'exceptions')]
+    #[ORM\JoinColumn(nullable: false, onDelete: 'CASCADE')]
+    private ?Event $event = null;
+
+    #[ORM\Column(type: 'datetime_immutable')]
+    private ?\DateTimeImmutable $originalDate = null;
 
     #[ORM\Column]
-    private ?bool $isCancelled = null;
+    private bool $isCancelled = false;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $rescheduledDate = null;
+
+    #[ORM\Column(type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $rescheduledEnd = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $title = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $description = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTime $rescheduledDate = null;
+    private ?bool $isAllday = null;
 
     #[ORM\Column(nullable: true)]
-    private ?\DateTime $rescheduledEnd = null;
+    private ?array $services = null;
 
     public function __construct()
     {
@@ -51,12 +63,24 @@ class EventException
         return $this->uuid;
     }
 
-    public function getOriginalDate(): ?\DateTime
+    public function getEvent(): ?Event
+    {
+        return $this->event;
+    }
+
+    public function setEvent(?Event $event): static
+    {
+        $this->event = $event;
+
+        return $this;
+    }
+
+    public function getOriginalDate(): ?\DateTimeImmutable
     {
         return $this->originalDate;
     }
 
-    public function setOriginalDate(\DateTime $originalDate): static
+    public function setOriginalDate(\DateTimeImmutable $originalDate): static
     {
         $this->originalDate = $originalDate;
 
@@ -75,26 +99,74 @@ class EventException
         return $this;
     }
 
-    public function getRescheduledDate(): ?\DateTime
+    public function getRescheduledDate(): ?\DateTimeImmutable
     {
         return $this->rescheduledDate;
     }
 
-    public function setRescheduledDate(?\DateTime $rescheduledDate): static
+    public function setRescheduledDate(?\DateTimeImmutable $rescheduledDate): static
     {
         $this->rescheduledDate = $rescheduledDate;
 
         return $this;
     }
 
-    public function getRescheduledEnd(): ?\DateTime
+    public function getRescheduledEnd(): ?\DateTimeImmutable
     {
         return $this->rescheduledEnd;
     }
 
-    public function setRescheduledEnd(?\DateTime $rescheduledEnd): static
+    public function setRescheduledEnd(?\DateTimeImmutable $rescheduledEnd): static
     {
         $this->rescheduledEnd = $rescheduledEnd;
+
+        return $this;
+    }
+
+    public function getTitle(): ?string
+    {
+        return $this->title;
+    }
+
+    public function setTitle(?string $title): static
+    {
+        $this->title = $title;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(?string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
+    public function getIsAllday(): ?bool
+    {
+        return $this->isAllday;
+    }
+
+    public function setIsAllday(?bool $isAllday): static
+    {
+        $this->isAllday = $isAllday;
+
+        return $this;
+    }
+
+    public function getServices(): ?array
+    {
+        return $this->services;
+    }
+
+    public function setServices(?array $services): static
+    {
+        $this->services = $services;
 
         return $this;
     }

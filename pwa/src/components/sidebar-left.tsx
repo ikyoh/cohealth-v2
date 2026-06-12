@@ -8,6 +8,7 @@ import {
   ClipboardPlus,
   ClipboardPlusIcon,
   HeartPulse,
+  ReceiptText,
   ShieldUser,
   Users
 } from "lucide-react"
@@ -107,6 +108,11 @@ const data = {
       url: "/application/prescriptions",
       icon: ClipboardPlus,
     },
+    {
+      title: "Facturation",
+      url: "/application/billing",
+      icon: ReceiptText,
+    }
   ],
 }
 
