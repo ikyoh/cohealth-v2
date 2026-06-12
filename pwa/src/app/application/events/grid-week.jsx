@@ -19,7 +19,15 @@ const ResponsiveReactGridLayout = WidthProvider(Responsive);
 const BLOCKS_PER_HOUR = 4;
 const MINUTES_PER_BLOCK = 15;
 const CALENDAR_TIMEZONE = "Europe/Paris";
-const WEEK_COLS = { lg: 7, md: 7, sm: 7, xs: 7, xxs: 7 };
+const DAY_COLUMN_UNITS = 12;
+const GRID_COLUMNS = 7 * DAY_COLUMN_UNITS;
+const WEEK_COLS = {
+  lg: GRID_COLUMNS,
+  md: GRID_COLUMNS,
+  sm: GRID_COLUMNS,
+  xs: GRID_COLUMNS,
+  xxs: GRID_COLUMNS,
+};
 
 const getCalendarDate = (value) => {
   if (dayjs.isDayjs(value)) {
@@ -36,12 +44,75 @@ const getCalendarDate = (value) => {
 const rangesOverlap = (first, second) => first.y < second.y + second.h && second.y < first.y + first.h
 const getIri = (value) => typeof value === "string" ? value : value?.["@id"] || value?.iri
 
-export default function GridWeek({ mission }) {
+const assignOverlapLanes = (items) => {
+  const positionedItems = [];
 
+  for (let day = 0; day < 7; day += 1) {
+    const dayItems = items
+      .filter(item => item.x === day)
+      .sort((first, second) => first.y - second.y || first.h - second.h);
+    let cluster = [];
+    let clusterEnd = -1;
+
+    const positionCluster = () => {
+      if (cluster.length === 0) return;
+
+      const laneEnds = [];
+      const assignedItems = cluster.map(item => {
+        let lane = laneEnds.findIndex(end => end <= item.y);
+
+        if (lane === -1) {
+          lane = laneEnds.length;
+          laneEnds.push(item.y + item.h);
+        } else {
+          laneEnds[lane] = item.y + item.h;
+        }
+
+        return { item, lane };
+      });
+      const laneCount = Math.max(laneEnds.length, 1);
+
+      assignedItems.forEach(({ item, lane }) => {
+        const laneStart = Math.floor((lane * DAY_COLUMN_UNITS) / laneCount);
+        const laneEnd = Math.floor(((lane + 1) * DAY_COLUMN_UNITS) / laneCount);
+
+        positionedItems.push({
+          ...item,
+          day,
+          x: day * DAY_COLUMN_UNITS + laneStart,
+          w: Math.max(1, laneEnd - laneStart),
+          overlapCount: cluster.length,
+        });
+      });
+    };
+
+    dayItems.forEach(item => {
+      if (cluster.length > 0 && item.y >= clusterEnd) {
+        positionCluster();
+        cluster = [];
+        clusterEnd = -1;
+      }
+
+      cluster.push(item);
+      clusterEnd = Math.max(clusterEnd, item.y + item.h);
+    });
+
+    positionCluster();
+  }
+
+  return positionedItems;
+};
+
+export default function GridWeek({ mission }) {
 
   const searchParams = useSearchParams()
   const date = searchParams.get('date') || dayjs().format('YYYY-MM-DD')
   const selectedPatient = searchParams.get('patient') || ""
+  const selectedCooperatorKey = searchParams.getAll('cooperator').sort().join(',')
+  const selectedCooperators = useMemo(
+    () => selectedCooperatorKey ? selectedCooperatorKey.split(',') : [],
+    [selectedCooperatorKey],
+  )
   const startOfWeek = useMemo(() => dayjs(date).startOf('isoWeek'), [date]); // Lundi de la semaine actuelle
   const endOfWeek = useMemo(() => dayjs(date).endOf('isoWeek'), [date]); // Dimanche de la semaine actuelle
   const compactType = "vertical";
@@ -88,18 +159,18 @@ export default function GridWeek({ mission }) {
     return (
 
       <div
-        className="min-w-0 h-full w-full cursor-pointer px-2 py-1 text-[11px] leading-tight"
+        className="min-w-0 h-full w-full cursor-pointer px-1 py-0 text-[9px] leading-tight"
         onClick={(e) => {
           e.stopPropagation();
           setSelectedItem(item);
         }}
       >
-        <div className="truncate font-medium">{patientName || event.title}</div>
-        {groupedEventsCount > 1 && (
+        <div className="truncate font-medium text-xs">{patientName || event.title}</div>
+        {/* {groupedEventsCount > 1 && (
           <div className="truncate opacity-90">
             {groupedEventsCount} événements regroupés
           </div>
-        )}
+        )} */}
       </div>
 
     )
@@ -136,6 +207,26 @@ export default function GridWeek({ mission }) {
     }
 
     return event.mission.patient.uuid || null
+  }
+
+  const getEventParticipantUuids = (event) => {
+    const participantIris = [
+      getIri(event.owner),
+      ...(event.cooperators || []).map(getIri),
+      ...(event.services || []).map(service => getIri(service.cooperator)),
+    ].filter(Boolean)
+
+    return new Set(participantIris.map(iri => iri.split("/").pop()))
+  }
+
+  const matchesSelectedCooperators = (event) => {
+    if (selectedCooperators.length === 0) {
+      return true
+    }
+
+    const participantUuids = getEventParticipantUuids(event)
+
+    return selectedCooperators.some(uuid => participantUuids.has(uuid))
   }
 
   const selectedOccurrences = selectedItem?.occurrences || [];
@@ -315,16 +406,18 @@ export default function GridWeek({ mission }) {
     if (isSuccess && !isLoading) {
       const events = data?.member || []
       const patientEvents = selectedPatient ? events.filter(event => getEventPatientUuid(event) === selectedPatient) : events
-      const occurrences = patientEvents.filter(f => !f.isAllday).flatMap(createEventOccurrences)
-      const newLayout = groupOverlappingOccurrences(occurrences)
+      const filteredEvents = patientEvents.filter(matchesSelectedCooperators)
+      const occurrences = filteredEvents.filter(f => !f.isAllday).flatMap(createEventOccurrences)
+      const groupedOccurrences = groupOverlappingOccurrences(occurrences)
+      const newLayout = assignOverlapLanes(groupedOccurrences)
       setlayout(newLayout)
       setmounted(true);
     }
-  }, [data, endOfWeek, isSuccess, isLoading, selectedPatient, startOfWeek]);
+  }, [data, endOfWeek, isSuccess, isLoading, selectedCooperatorKey, selectedPatient, startOfWeek]);
 
   useEffect(() => {
     setSelectedItem(null)
-  }, [date, selectedPatient]);
+  }, [date, selectedCooperatorKey, selectedPatient]);
 
   const onDragStop = (layout, oldItem, newItem, placeholder, e, element) => {
     console.log("DRAG STOP");
@@ -337,9 +430,9 @@ export default function GridWeek({ mission }) {
 
   return (
     <>
-      <div className="absolute top-[68px] left-0 z-20 w-full">
+      <div className="absolute top-[71px] left-0 z-20 w-full">
         <ResponsiveReactGridLayout
-          rowHeight={12}
+          rowHeight={15}
           maxRows={96}
           cols={WEEK_COLS}
           margin={[0, 0]}
@@ -358,7 +451,7 @@ export default function GridWeek({ mission }) {
           // and set `measureBeforeMount={true}`.
           useCSSTransforms={mounted}
           preventCollision={!compactType}
-          isDroppable={true}
+          isDroppable={false}
           droppingItem={{ i: "xx", h: 12, w: 96 }}
           verticalCompact={false}
           draggableHandle=".drag-handle"
@@ -367,14 +460,16 @@ export default function GridWeek({ mission }) {
         >
           {layout.map((item) => {
             const isPrimaryItem = item.events?.length > 0 && item.events.every(isPrimaryEvent)
+            const hasConcurrentEvents = item.overlapCount > 1
 
             return (
               <div
                 key={item.i}
                 data-grid={item}
+                title={hasConcurrentEvents ? `${item.overlapCount} événements simultanés` : undefined}
                 className={`flex items-start justify-between overflow-hidden rounded border shadow-sm ${isPrimaryItem
-                  ? "border-primary bg-primary text-primary-foreground"
-                  : "border-secondary bg-secondary/30 text-secondary-foreground"
+                  ? "border-primary bg-primary text-seconcary-foreground"
+                  : "bg-secondary/70 text-secondary-foreground"
                   }`}
               >
                 <EventItem item={item} />

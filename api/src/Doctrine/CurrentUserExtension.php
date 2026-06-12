@@ -8,6 +8,7 @@ use App\Entity\Patient;
 use App\Entity\Event;
 use App\Entity\Prescription;
 use App\Entity\Observation;
+use App\Entity\MissionDocument;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
@@ -48,7 +49,7 @@ final class CurrentUserExtension implements QueryCollectionExtensionInterface, Q
 
   private function addWhere(QueryBuilder $queryBuilder, string $resourceClass, bool $isCollection): void
   {
-    if (!in_array($resourceClass, [Mission::class, Patient::class, Event::class, Prescription::class, Observation::class], true)) {
+    if (!in_array($resourceClass, [Mission::class, Patient::class, Event::class, Prescription::class, Observation::class, MissionDocument::class], true)) {
       return;
     }
 
@@ -82,6 +83,20 @@ final class CurrentUserExtension implements QueryCollectionExtensionInterface, Q
       $queryBuilder
         ->innerJoin($alias . '.owner', 'missionAclOwner')
         ->andWhere('missionAclOwner.uuid = :currentUserUuid OR :currentUser MEMBER OF ' . $alias . '.owners')
+        ->setParameter('currentUserUuid', $user->getUuid()?->toRfc4122())
+        ->setParameter('currentUser', $user);
+
+      return;
+    }
+
+    if ($resourceClass === MissionDocument::class) {
+      $queryBuilder
+        ->innerJoin($alias . '.mission', 'documentAclMission')
+        ->innerJoin('documentAclMission.owner', 'documentAclMissionOwner')
+        ->andWhere(
+          'documentAclMissionOwner.uuid = :currentUserUuid'
+          . ' OR :currentUser MEMBER OF documentAclMission.owners'
+        )
         ->setParameter('currentUserUuid', $user->getUuid()?->toRfc4122())
         ->setParameter('currentUser', $user);
 

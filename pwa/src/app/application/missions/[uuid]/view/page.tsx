@@ -10,9 +10,11 @@ import { useCombinedQueries, useGetIRI } from "@/hooks/useQuery";
 import dayjs from '@/utils/dayjs.config';
 import { Cantons, InsuranceCategory, PrincipalCategories } from "@/utils/types.utils";
 import { BriefcaseMedical, FileText, HeartPulse } from "lucide-react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import MissionActions from "../../mission-actions";
 import OpasActions from "../../opas-actions";
+import DocumentsSummary from "./documents-summary";
+import DocumentsTab from "./documents-tab";
 import ObservationsTab from "./observations-tab";
 
 const getIri = (value: unknown): string => {
@@ -27,7 +29,9 @@ const getIri = (value: unknown): string => {
 export default function MissionPage() {
 
   const { uuid } = useParams();
+  const searchParams = useSearchParams();
   const iri = `/missions/${uuid}`;
+  const defaultTab = searchParams.get("tab") || "informations";
 
   const { data, isLoading, error, isSuccess: isGetSuccess } = useGetIRI(iri ? iri : "");
   const { data: patient, isLoading: isLoadingPatient, error: errorPatient, isSuccess: isGetSuccessPatient } = useGetIRI(data ? data.patient : "");
@@ -62,15 +66,16 @@ export default function MissionPage() {
     </div>)
   return (
     <PageContent title="Mission" actions={<Actions />}>
-      <Tabs defaultValue="informations">
-        <TabsList>
+      <Tabs defaultValue={defaultTab}>
+        <TabsList className="bg-primary">
           <TabsTrigger value="informations">Informations</TabsTrigger>
           <TabsTrigger value="planning">Planning</TabsTrigger>
           <TabsTrigger value="observations">Observations</TabsTrigger>
+          <TabsTrigger value="documents">Documents</TabsTrigger>
           <TabsTrigger value="facturation">Facturation</TabsTrigger>
         </TabsList >
         <TabsContent value="informations">
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
@@ -179,7 +184,9 @@ export default function MissionPage() {
                   Documents
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4"></CardContent>
+              <CardContent>
+                <DocumentsSummary missionIri={iri} />
+              </CardContent>
             </Card>
           </div>
         </TabsContent>
@@ -188,6 +195,9 @@ export default function MissionPage() {
         </TabsContent>
         <TabsContent value="observations">
           <ObservationsTab missionIri={iri} canManage={isMissionOwner} />
+        </TabsContent>
+        <TabsContent value="documents">
+          <DocumentsTab missionIri={iri} canManage={isMissionOwner} />
         </TabsContent>
         <TabsContent value="facturation">Facturation</TabsContent>
       </Tabs >

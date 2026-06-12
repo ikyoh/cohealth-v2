@@ -6,17 +6,22 @@ import { useEffect } from "react";
 
 const UserProvider = ({ children }: { children: React.ReactNode }) => {
 
-  const { data: user, isLoading, isError, isSuccess } = useGetIRI("/current_user");
+  const { data: user, isLoading, isError } = useGetIRI("/current_user");
   const router = useRouter();
 
   useEffect(() => {
     if (!isLoading && (isError || !user)) {
-      router.push('/signin');
+      router.replace('/signin');
+      return;
     }
-  }, [isLoading, isError, !user]);
+
+    if (user?.onboardingCompleted === false) {
+      router.replace('/onboarding');
+    }
+  }, [isError, isLoading, router, user]);
 
 
-  if (isLoading) return (
+  if (isLoading || !user || user.onboardingCompleted === false) return (
     <div className="bg-muted flex min-h-svh items-center justify-center p-6 md:p-10">
       <Image
         src="/icon-cohealth.svg"

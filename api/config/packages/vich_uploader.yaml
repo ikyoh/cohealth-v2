@@ -21,8 +21,8 @@ vich_uploader:
             delete_on_remove: true
             delete_on_update: true
         media_document:
-            uri_prefix: /document
-            upload_destination: '%kernel.project_dir%/public/document'
+            uri_prefix: /mission_documents
+            upload_destination: '%kernel.project_dir%/var/mission_documents'
             namer: Vich\UploaderBundle\Naming\SmartUniqueNamer
             delete_on_remove: true
             delete_on_update: true

@@ -179,6 +179,18 @@ export const profileFormSchema = z.object({
     roles: z.array(z.string()).optional(),
 }).superRefine(validateProfessionalIdentifiers)
 
+export const onboardingFormSchema = z.object({
+    firstname: requiredString(),
+    lastname: requiredString(),
+    organizationName: optionalString(),
+    mobile: optionalString(12),
+    phone: optionalString(12),
+    address: requiredString(),
+    postCode: requiredNPA,
+    city: requiredString(),
+    country: requiredString(),
+})
+
 export const principalFormSchema = z.object({
     name: requiredString(),
     isActive: z.boolean(),

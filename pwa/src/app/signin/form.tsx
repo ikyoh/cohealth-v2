@@ -55,7 +55,7 @@ export default function SigninForm() {
     if (isSuccess && data.token) {
       setAuthToken(data.token);
       queryClient.removeQueries();
-      router.replace('/application');
+      router.replace('/onboarding');
       router.refresh();
     }
   }, [data, isSuccess, queryClient, router]);

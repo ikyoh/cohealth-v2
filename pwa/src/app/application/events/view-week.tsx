@@ -47,9 +47,9 @@ export default function ViewWeek({ mission }: { mission?: string }) {
 
   return (
     <div className="bg-sidebar p-3 rounded-lg">
-      <div className="mb-3 flex justify-end">
+      {mission && <div className="mb-3 flex justify-end">
         <WeekSwitcher />
-      </div>
+      </div>}
       {/* <div className="flex mb-3">
         <div className="w-11"></div>
         <div className="flex-1 grid grid-cols-7 divide-x">
@@ -63,18 +63,18 @@ export default function ViewWeek({ mission }: { mission?: string }) {
       </div> */}
       <div className="flex">
         <div>
-          <div className="h-14"></div>
+          <div className="h-[60px]"></div>
           {Array(24).fill(0).map((_, i) => (
-            <div key={i} className="h-12 text-xs">
+            <div key={i} className="h-[60px] text-xs">
               {i}:00
             </div>
           ))}
         </div>
         <div className="w-3">
-          <div className="h-[17px]"></div>
+          <div className="h-[12px]"></div>
           <div className='divide-y'>
             {Array(25).fill(0).map((_, i) => (
-              <div key={i} className="h-12">
+              <div key={i} className="h-[60px]">
               </div>
             ))}
           </div>
@@ -86,7 +86,7 @@ export default function ViewWeek({ mission }: { mission?: string }) {
           <GridWeek mission={mission} />
           <div className="grid grid-cols-7 divide-x border-l border-r">
             {Array(7).fill(0).map((_, i) => (
-              <div key={i} className="h-3">
+              <div key={i} className="h-[15px]">
               </div>
             ))}
           </div>
@@ -122,7 +122,7 @@ const Col = () => {
   return (
     <div className="text-xs text-center uppercase divide-y border-t border-b">
       {Array(24).fill(0).map((_, i) => (
-        <div key={i} className="h-12">
+        <div key={i} className="h-[60px]">
         </div>
       ))}
     </div>

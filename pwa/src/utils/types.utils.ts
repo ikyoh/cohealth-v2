@@ -16,6 +16,7 @@ export interface UserInterface {
   createdAt: string; // ISO date string
   isOptin: boolean;
   isApproved: boolean;
+  onboardingCompleted: boolean;
   principal?: string | null;
   // Relations (optionnelles, souvent sous forme d'IRI ou d'objets partiels)
   missions?: string[]; // IRI[]

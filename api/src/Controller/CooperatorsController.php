@@ -38,6 +38,7 @@ final class CooperatorsController extends AbstractController
         $search = mb_strtolower(trim($request->query->getString('search')));
         $role = $request->query->getString('role');
         $order = $request->query->all('order');
+        $sharedOnly = $request->query->getBoolean('shared');
 
         if ($role !== '' && !in_array($role, self::ALLOWED_ROLES, true)) {
             throw new BadRequestHttpException('Le rôle demandé n’est pas autorisé.');
@@ -60,13 +61,22 @@ final class CooperatorsController extends AbstractController
             max(1, $request->query->getInt('itemsPerPage', self::DEFAULT_ITEMS_PER_PAGE)),
         );
 
-        $cooperators = array_values(array_filter(
-            $this->repository->findBy(
+        $currentUser = $this->getUser();
+        $availableCooperators = $sharedOnly && $currentUser instanceof User
+            ? $this->getSharedCooperators($currentUser)
+            : $this->repository->findBy(
                 ['isActive' => true, 'isApproved' => true],
                 ['lastname' => 'ASC', 'firstname' => 'ASC'],
-            ),
+            );
+
+        $cooperators = array_values(array_filter(
+            $availableCooperators,
             static function (User $user) use ($role, $search): bool {
-                if (!$user->isCooperator()) {
+                if (
+                    !$user->isCooperator()
+                    || $user->getIsActive() !== true
+                    || $user->getIsApproved() !== true
+                ) {
                     return false;
                 }
 
@@ -129,6 +139,36 @@ final class CooperatorsController extends AbstractController
             'totalItems' => $totalItems,
             'view' => $nextPage ? ['next' => $nextPage] : null,
         ]);
+    }
+
+    /**
+     * @return User[]
+     */
+    private function getSharedCooperators(User $currentUser): array
+    {
+        $cooperators = [];
+
+        foreach ($currentUser->getMissions() as $mission) {
+            foreach ($mission->getOwners() as $owner) {
+                $cooperators[(string) $owner->getUuid()] = $owner;
+            }
+        }
+
+        foreach ($currentUser->getSharedMissions() as $mission) {
+            $owner = $mission->getOwner();
+
+            if ($owner !== null && $owner->getId() !== $currentUser->getId()) {
+                $cooperators[(string) $owner->getUuid()] = $owner;
+            }
+
+            foreach ($mission->getOwners() as $owner) {
+                if ($owner->getId() !== $currentUser->getId()) {
+                    $cooperators[(string) $owner->getUuid()] = $owner;
+                }
+            }
+        }
+
+        return array_values($cooperators);
     }
 
     private function buildNextPageUrl(Request $request, int $page): string

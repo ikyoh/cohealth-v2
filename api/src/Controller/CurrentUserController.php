@@ -26,6 +26,7 @@ class CurrentUserController extends AbstractController
             'lastname' => $user->getLastname(),
             'organization' => $user->getOrganizationName(),
             'principal' => $user->getPrincipal() ? '/principals/' . $user->getPrincipal()->getUuid() : null,
+            'onboardingCompleted' => $user->isOnboardingCompleted(),
         ]);
     }
 }

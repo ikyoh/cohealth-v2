@@ -140,6 +140,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(["user:write", "users:read", "user:read"])]
     private ?bool $isApproved = null;
 
+    #[ORM\Column]
+    #[Groups(["user:write", "users:read", "user:read"])]
+    private bool $onboardingCompleted = false;
+
     /**
      * @var Collection<int, Mission>
      */
@@ -448,6 +452,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setIsApproved(bool $isApproved): static
     {
         $this->isApproved = $isApproved;
+
+        return $this;
+    }
+
+    public function isOnboardingCompleted(): bool
+    {
+        return $this->onboardingCompleted;
+    }
+
+    public function setOnboardingCompleted(bool $onboardingCompleted): static
+    {
+        $this->onboardingCompleted = $onboardingCompleted;
 
         return $this;
     }
