@@ -9,6 +9,8 @@ use App\Entity\Event;
 use App\Entity\Prescription;
 use App\Entity\Observation;
 use App\Entity\MissionDocument;
+use App\Entity\Mandate;
+use App\Entity\MandateGroup;
 use ApiPlatform\Doctrine\Orm\Extension\QueryCollectionExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Extension\QueryItemExtensionInterface;
 use ApiPlatform\Doctrine\Orm\Util\QueryNameGeneratorInterface;
@@ -49,7 +51,7 @@ final class CurrentUserExtension implements QueryCollectionExtensionInterface, Q
 
   private function addWhere(QueryBuilder $queryBuilder, string $resourceClass, bool $isCollection): void
   {
-    if (!in_array($resourceClass, [Mission::class, Patient::class, Event::class, Prescription::class, Observation::class, MissionDocument::class], true)) {
+    if (!in_array($resourceClass, [Mission::class, Patient::class, Event::class, Prescription::class, Observation::class, MissionDocument::class, Mandate::class, MandateGroup::class], true)) {
       return;
     }
 
@@ -62,6 +64,42 @@ final class CurrentUserExtension implements QueryCollectionExtensionInterface, Q
     }
 
     $alias = $queryBuilder->getRootAliases()[0];
+
+    if (
+      in_array('ROLE_COORDINATOR', $user->getRoles(), true)
+      && in_array($resourceClass, [Mandate::class, MandateGroup::class], true)
+    ) {
+      return;
+    }
+
+    if ($resourceClass === MandateGroup::class) {
+      $queryBuilder
+        ->leftJoin($alias . '.owner', 'mandateGroupAclOwner')
+        ->leftJoin($alias . '.mandates', 'mandateGroupAclMandate')
+        ->leftJoin('mandateGroupAclMandate.assignedTo', 'mandateGroupAclAssigned')
+        ->andWhere(
+          'mandateGroupAclOwner.uuid = :currentUserUuid'
+          . ' OR mandateGroupAclAssigned.uuid = :currentUserUuid'
+        )
+        ->setParameter('currentUserUuid', $user->getUuid()?->toRfc4122())
+        ->distinct();
+
+      return;
+    }
+
+    if ($resourceClass === Mandate::class) {
+      $queryBuilder
+        ->innerJoin($alias . '.mandateGroup', 'mandateAclGroup')
+        ->leftJoin('mandateAclGroup.owner', 'mandateAclOwner')
+        ->leftJoin($alias . '.assignedTo', 'mandateAclAssigned')
+        ->andWhere(
+          'mandateAclOwner.uuid = :currentUserUuid'
+          . ' OR mandateAclAssigned.uuid = :currentUserUuid'
+        )
+        ->setParameter('currentUserUuid', $user->getUuid()?->toRfc4122());
+
+      return;
+    }
 
     if ($resourceClass === Patient::class) {
       $queryBuilder

@@ -95,7 +95,7 @@ const data = {
     },
     {
       title: "Mandats",
-      url: "#",
+      url: "/application/mandates",
       icon: ClipboardPlus,
     },
     {
