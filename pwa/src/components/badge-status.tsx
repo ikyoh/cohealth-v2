@@ -1,5 +1,5 @@
 
-export const statusClasses = {
+export const statusClasses: Record<string, string> = {
     A: "bg-green-400",
     B: "bg-pink-400",
     C: "bg-orange-400",

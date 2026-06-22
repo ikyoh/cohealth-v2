@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/table";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 import { useGetIRI } from "@/hooks/useQuery";
-import { PatientInterface } from "@/utils/types.utils";
+import { Gender, PatientInterface } from "@/utils/types.utils";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 
@@ -91,7 +91,7 @@ const Row = ({ data, lastElementRef }: {
 		<TableRow ref={lastElementRef}>
 			<TableCell className="font-medium">{data.id}</TableCell>
 			<TableCell className="space-x-2">
-				{data.gender === "MALE" ? "Mr" : "Mme"}
+				{data.gender === Gender.MALE ? "Mr" : "Mme"}
 				{" "}
 				<span className="uppercase">
 					{data.lastname}

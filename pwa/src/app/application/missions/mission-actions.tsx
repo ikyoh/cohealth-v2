@@ -73,30 +73,30 @@ export default function MissionActions({ iri, isCompact = false, isActions = tru
       <DropdownMenuContent align="end">
         {isActions && <>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => router.push(`/application/${data["@id"]}`, { scroll: false })}>
+          <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/application/${data["@id"]}`, { scroll: false }) }}>
             Editer la mission
           </DropdownMenuItem>
           {isMissionOwner && (
-            <DropdownMenuItem onClick={() => router.push(`/application${getIri(data?.patient)}`, { scroll: false })}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/application${getIri(data?.patient)}`, { scroll: false }) }}>
               Editer le patient
             </DropdownMenuItem>
           )}
         </>}
         <DropdownMenuSeparator />
         <DropdownMenuLabel>Statut de la mission</DropdownMenuLabel>
-        <DropdownMenuItem onClick={() => handleChangeStatus('EN_COURS')}>
+        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleChangeStatus('EN_COURS') }}>
           <BadgeStatus status="EN_COURS" />
           En cours
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleChangeStatus('ARCHIVE')}>
+        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleChangeStatus('ARCHIVE') }}>
           <BadgeStatus status="ARCHIVE" />
           Archivé
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleChangeStatus('FACTURE')}>
+        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleChangeStatus('FACTURE') }}>
           <BadgeStatus status="FACTURE" />
           Facturé
         </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => handleChangeStatus('ANNULE')}>
+        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleChangeStatus('ANNULE') }}>
           <BadgeStatus status="ANNULE" />
           Annulé
         </DropdownMenuItem>

@@ -17,9 +17,17 @@ function Collapsible({ asChild = false, render, ...props }: CollapsibleProps) {
   )
 }
 
-function CollapsibleTrigger({ ...props }: CollapsiblePrimitive.Trigger.Props) {
+type CollapsibleTriggerProps = CollapsiblePrimitive.Trigger.Props & {
+  asChild?: boolean
+}
+
+function CollapsibleTrigger({ asChild = false, render, ...props }: CollapsibleTriggerProps) {
   return (
-    <CollapsiblePrimitive.Trigger data-slot="collapsible-trigger" {...props} />
+    <CollapsiblePrimitive.Trigger
+      data-slot="collapsible-trigger"
+      render={asChild ? <Slot /> : render}
+      {...props}
+    />
   )
 }
 
@@ -30,4 +38,3 @@ function CollapsibleContent({ ...props }: CollapsiblePrimitive.Panel.Props) {
 }
 
 export { Collapsible, CollapsibleContent, CollapsibleTrigger }
-

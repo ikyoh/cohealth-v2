@@ -7,6 +7,12 @@ import FormTimePicker from "@/components/form/form-timepicker";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Form,
   FormControl,
   FormField,
@@ -27,6 +33,7 @@ import { useCombinedQueries, useGetIRI } from "@/hooks/useQuery";
 import dayjs from "@/utils/dayjs.config";
 import { eventFormSchemaArray } from "@/utils/zodSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Combine, Ungroup } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo } from "react";
 import { SubmitHandler, useFieldArray, useForm } from "react-hook-form";
@@ -39,7 +46,13 @@ type Cooperator = {
   lastname?: string;
 };
 
-const PatientForm = () => {
+const DEFAULT_EVENT_HOUR = 8;
+
+const withDefaultEventTime = (date: string | Date) => (
+  dayjs(date).hour(DEFAULT_EVENT_HOUR).minute(0).second(0).millisecond(0).toDate()
+);
+
+const PlanifyForm = () => {
   const params = useParams()
   const iri = params.uuid ? `/prescriptions/${params.uuid}` : ""
   const router = useRouter()
@@ -82,10 +95,106 @@ const PatientForm = () => {
     defaultValues: defaultValues,
   });
 
-  const { fields } = useFieldArray({
+  const { fields, replace } = useFieldArray({
     control: form.control,
     name: "events"
   });
+  const watchedEvents = form.watch("events") || [];
+
+  const getGroupCandidates = (eventIndex: number) => {
+    const event = watchedEvents[eventIndex];
+
+    if (!event || event.services?.length !== 1) {
+      return [];
+    }
+
+    return watchedEvents
+      .map((candidate: any, index: number) => ({ candidate, index }))
+      .filter(({ candidate, index }: any) => (
+        index !== eventIndex
+        && candidate?.periodicity === event.periodicity
+        && candidate?.frequency === event.frequency
+      ));
+  };
+
+  const getGroupLabel = (event: any, index: number) => {
+    const serviceNames = event.services
+      ?.map((service: any) => service.name)
+      .filter(Boolean)
+      .join(", ");
+
+    return `Intervention ${index + 1}${serviceNames ? ` - ${serviceNames}` : ""}`;
+  };
+
+  const handleUngroupService = (eventIndex: number, serviceIndex: number) => {
+    const events = form.getValues("events") || [];
+    const event = events[eventIndex];
+    const service = event?.services?.[serviceIndex];
+
+    if (!event || !service || event.services.length <= 1) {
+      return;
+    }
+
+    const remainingServices = event.services.filter((_: any, index: number) => index !== serviceIndex);
+    const remainingDuration = remainingServices.reduce((sum: number, item: any) => sum + Number(item.duration || 0), 0);
+
+    const updatedEvent = {
+      ...event,
+      duration: remainingDuration,
+      services: remainingServices,
+    };
+
+    const ungroupedEvent = {
+      ...event,
+      duration: Number(service.duration || 0),
+      services: [service],
+      days: event.days ? [...event.days] : [],
+    };
+
+    replace([
+      ...events.slice(0, eventIndex),
+      updatedEvent,
+      ungroupedEvent,
+      ...events.slice(eventIndex + 1),
+    ]);
+  };
+
+  const handleGroupService = (sourceIndex: number, targetIndex: number) => {
+    const events = form.getValues("events") || [];
+    const sourceEvent = events[sourceIndex];
+    const targetEvent = events[targetIndex];
+    const service = sourceEvent?.services?.[0];
+
+    if (
+      !sourceEvent
+      || !targetEvent
+      || !service
+      || sourceEvent.services.length !== 1
+      || sourceIndex === targetIndex
+      || sourceEvent.periodicity !== targetEvent.periodicity
+      || sourceEvent.frequency !== targetEvent.frequency
+    ) {
+      return;
+    }
+
+    replace(events.flatMap((event: any, index: number) => {
+      if (index === sourceIndex) {
+        return [];
+      }
+
+      if (index === targetIndex) {
+        const services = [...event.services, service];
+
+        return [{
+          ...event,
+          duration: services.reduce((sum: number, item: any) => sum + Number(item.duration || 0), 0),
+          services,
+        }];
+      }
+
+      return [event];
+    }));
+  };
 
   const onSubmit: SubmitHandler<FormSchema> = (values: any) => {
 
@@ -151,6 +260,9 @@ const PatientForm = () => {
         return acc;
       }, []);
 
+      const defaultBeginDate = withDefaultEventTime(mission.beginDate);
+      const defaultEndDate = withDefaultEventTime(mission.endDate);
+
       const eventsFromGroupedServices = groupedServicesByFrequencyAndPeriodicity.map((group: any) => (
 
         group.periodicity === 'daily' ?
@@ -158,8 +270,8 @@ const PatientForm = () => {
           Array.from(Array(group.frequency)).map((e, i) =>
           ({
             title: patient.lastname,
-            beginDate: mission.beginDate,
-            endDate: mission.endDate,
+            beginDate: defaultBeginDate,
+            endDate: defaultEndDate,
             duration: group.services.reduce((sum: number, s: any) => sum + s.duration, 0),
             periodicity: group.periodicity,
             frequency: group.frequency,
@@ -172,8 +284,8 @@ const PatientForm = () => {
           :
           {
             title: patient.lastname,
-            beginDate: mission.beginDate,
-            endDate: mission.endDate,
+            beginDate: defaultBeginDate,
+            endDate: defaultEndDate,
             duration: group.services.reduce((sum: number, s: any) => sum + s.duration, 0),
             periodicity: group.periodicity,
             frequency: group.frequency,
@@ -220,12 +332,64 @@ const PatientForm = () => {
 
           <div className="overflow-y-auto space-y-5">
 
-            {fields?.map((field, index) =>
-              <div key={index} className='flex flex-col gap-4 rounded-md border p-2'>
-                <EventsTitle periodicity={field.periodicity} frequency={field.frequency} />
+            {fields?.map((field, index) => {
+              const event = watchedEvents[index] || field;
+              const eventServices = event.services || [];
+              const groupCandidates = getGroupCandidates(index);
 
-                {field.services.map((service: any, serviceIndex: number) =>
-                  <div key={`${index}_${serviceIndex}`} className="">
+              return (
+                <div key={field.id} className='flex flex-col gap-4 rounded-md border p-2'>
+                  <div className="flex items-center gap-2">
+                    <div className="grow">
+                      <EventsTitle periodicity={event.periodicity} frequency={event.frequency} />
+                    </div>
+                    {eventServices.length === 1 && groupCandidates.length === 1 && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-7 px-2 text-xs text-muted-foreground"
+                        disabled={isPosting || isLoading}
+                        aria-label={`Regrouper ${eventServices[0].name}`}
+                        title={`Regrouper avec ${getGroupLabel(groupCandidates[0].candidate, groupCandidates[0].index)}`}
+                        onClick={() => handleGroupService(index, groupCandidates[0].index)}
+                      >
+                        <Combine className="size-4" />
+                        Regrouper
+                      </Button>
+                    )}
+                    {eventServices.length === 1 && groupCandidates.length > 1 && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs text-muted-foreground"
+                            disabled={isPosting || isLoading}
+                            aria-label={`Regrouper ${eventServices[0].name}`}
+                            title={`Regrouper ${eventServices[0].name}`}
+                          >
+                            <Combine className="size-4" />
+                            Regrouper
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="max-w-80">
+                          {groupCandidates.map(({ candidate, index: targetIndex }: any) => (
+                            <DropdownMenuItem
+                              key={targetIndex}
+                              onClick={() => handleGroupService(index, targetIndex)}
+                            >
+                              {getGroupLabel(candidate, targetIndex)}
+                            </DropdownMenuItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+
+                {eventServices.map((service: any, serviceIndex: number) =>
+                  <div key={`${service.uuid || service.id}_${serviceIndex}`} className="">
                     <div className="flex items-center gap-2 pb-2">
                       <div>
                         <BadgeStatus status={service.category} label={service.category} />
@@ -233,6 +397,21 @@ const PatientForm = () => {
                       <div className='grow text-sm/3'>
                         {service.name}
                       </div>
+                      {eventServices.length > 1 && (
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-xs text-muted-foreground"
+                          disabled={isPosting || isLoading}
+                          aria-label={`Dégrouper ${service.name}`}
+                          title={`Dégrouper ${service.name}`}
+                          onClick={() => handleUngroupService(index, serviceIndex)}
+                        >
+                          <Ungroup className="size-4" />
+                          Dégrouper
+                        </Button>
+                      )}
                     </div>
                     <CooperatorSelect
                       form={form}
@@ -248,7 +427,7 @@ const PatientForm = () => {
                 )}
 
                 <div className='text-sm'>
-                  {field.periodicity === 'period' && (
+                  {event.periodicity === 'period' && (
                     <FormDateTimePicker
                       form={form}
                       name={`events.${index}.beginDate`}
@@ -256,7 +435,7 @@ const PatientForm = () => {
                       placeholder="Date"
                     />
                   )}
-                  {field.periodicity === 'daily' && (
+                  {event.periodicity === 'daily' && (
                     <FormTimePicker
                       form={form}
                       name={`events.${index}.beginDate`}
@@ -264,7 +443,7 @@ const PatientForm = () => {
                       placeholder="Heure"
                     />)}
 
-                  {field.periodicity === 'weekly' && (
+                  {event.periodicity === 'weekly' && (
                     <div className="space-y-4">
                       <FormTimePicker
                         form={form}
@@ -292,7 +471,8 @@ const PatientForm = () => {
 
                 </div>
               </div>
-            )}
+              );
+            })}
           </div>
 
         </div>
@@ -314,7 +494,7 @@ const PatientForm = () => {
 }
 
 
-export default PatientForm;
+export default PlanifyForm;
 
 const CooperatorSelect = ({
   form,

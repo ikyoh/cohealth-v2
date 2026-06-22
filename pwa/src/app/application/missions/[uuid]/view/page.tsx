@@ -102,7 +102,7 @@ export default function MissionPage() {
                     {principal.name}
                   </p>
                   <p className="text-xs">
-                    {PrincipalCategories[principal.category]}
+                    {PrincipalCategories[principal.category as keyof typeof PrincipalCategories]}
                   </p>
                 </div>
                 <div>
@@ -113,7 +113,7 @@ export default function MissionPage() {
                     {insurance.name}
                   </p>
                   <p className="text-xs">
-                    {InsuranceCategory[insurance.category]}
+                    {InsuranceCategory[insurance.category as keyof typeof InsuranceCategory]}
                   </p>
                 </div>
                 <div>
@@ -170,7 +170,7 @@ export default function MissionPage() {
                     Ville : {patient.city}
                   </p>
                   <p>
-                    Canton : {Cantons[patient.canton]}
+                    Canton : {Cantons[patient.canton as keyof typeof Cantons]}
                   </p>
                   {patient.mobile && <p>Mobile : {patient.mobile}</p>}
                   {patient.phone && <p>Téléphone : {patient.phone}</p>}

@@ -1,7 +1,7 @@
 "use client";
 
 import DeleteConfirmation from "@/components/delete-confirmation";
-import { Modal } from "@/components/modal";
+import Modal from "@/components/modal";
 
 export default function DeleteCategoryModalPage() {
 

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 // import "./styles.css";
 
+import { BadgeStatus } from "@/components/badge-status";
 import {
   Dialog,
   DialogContent,
@@ -66,6 +67,10 @@ const rangesOverlap = (first, second) => first.y < second.y + second.h && second
 const getIri = (value) => typeof value === "string" ? value : value?.["@id"] || value?.iri
 const getServiceKey = (service) =>
   service?.["@id"] || service?.uuid || String(service?.id || `${service?.family}-${service?.name}`)
+const getCooperatorName = (cooperator) =>
+  [cooperator?.firstname, cooperator?.lastname].filter(Boolean).join(" ") || getIri(cooperator)
+const calcServicesDuration = (services) =>
+  (services || []).reduce((duration, service) => duration + Number(service.duration || 0), 0)
 
 const assignOverlapLanes = (items) => {
   const positionedItems = [];
@@ -150,8 +155,28 @@ export default function GridWeek({ mission }) {
     entity: "events",
     searchParams: eventSearchParams.toString(),
   });
+  const [mounted, setmounted] = useState(false);
+  const [layout, setlayout] = useState([]);
+  const [selectedItem, setSelectedItem] = useState(null);
+  const [editingOccurrence, setEditingOccurrence] = useState(null);
+  const [editForm, setEditForm] = useState(null);
+  const [pendingAction, setPendingAction] = useState(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [actionError, setActionError] = useState("");
+  const [createForm, setCreateForm] = useState(null);
+  const [createServiceFamily, setCreateServiceFamily] = useState("all");
+  const [editServiceFamily, setEditServiceFamily] = useState("all");
+  const [isCreating, setIsCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
   const { data: currentUser } = useGetIRI("/current_user");
-  const { data: missionData } = useGetIRI(mission || "");
+  const embeddedEditingMission = !mission && typeof editingOccurrence?.event?.mission === "object"
+    ? editingOccurrence.event.mission
+    : null
+  const editingMissionIri = !mission && !embeddedEditingMission
+    ? getIri(editingOccurrence?.event?.mission)
+    : ""
+  const { data: fetchedMissionData } = useGetIRI(mission || editingMissionIri || "");
+  const missionData = embeddedEditingMission || fetchedMissionData
   const { data: servicesData, isLoading: isLoadingServices } = useGetCollection({
     entity: "services",
     searchParams: "pagination=false",
@@ -166,18 +191,6 @@ export default function GridWeek({ mission }) {
     ...fetchedMissionCooperators.filter(Boolean),
   ];
 
-  const [mounted, setmounted] = useState(false);
-  const [layout, setlayout] = useState([]);
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [editingOccurrence, setEditingOccurrence] = useState(null);
-  const [editForm, setEditForm] = useState(null);
-  const [pendingAction, setPendingAction] = useState(null);
-  const [isSaving, setIsSaving] = useState(false);
-  const [actionError, setActionError] = useState("");
-  const [createForm, setCreateForm] = useState(null);
-  const [createServiceFamily, setCreateServiceFamily] = useState("all");
-  const [isCreating, setIsCreating] = useState(false);
-  const [createError, setCreateError] = useState("");
   const layouts = useMemo(() => ({
     lg: layout,
     md: layout,
@@ -208,9 +221,11 @@ export default function GridWeek({ mission }) {
   const selectedCreateServices = availableServices.filter(service =>
     createForm?.serviceKeys?.includes(getServiceKey(service))
   )
-  const createDuration = selectedCreateServices.reduce(
-    (duration, service) => duration + Number(service.duration || 0),
-    0,
+  const createDuration = calcServicesDuration(selectedCreateServices)
+  const editServiceKeys = new Set((editForm?.services || []).map(getServiceKey))
+  const filteredEditServices = availableServices.filter(service =>
+    (editServiceFamily === "all" || service.family === editServiceFamily)
+    && !editServiceKeys.has(getServiceKey(service))
   )
 
   const openCreateEvent = (event) => {
@@ -612,6 +627,7 @@ export default function GridWeek({ mission }) {
       ...(changes.description !== undefined && { description: changes.description }),
       ...(changes.isAllday !== undefined && { isAllday: changes.isAllday }),
       ...(changes.duration !== undefined && { duration: Number(changes.duration) }),
+      ...(changes.services !== undefined && { services: changes.services }),
     }
 
     if (!event.recurrenceRule) {
@@ -656,8 +672,61 @@ export default function GridWeek({ mission }) {
         ...(changes.title !== undefined && { title: changes.title }),
         ...(changes.description !== undefined && { description: changes.description }),
         ...(changes.isAllday !== undefined && { isAllday: changes.isAllday }),
+        ...(changes.services !== undefined && { services: changes.services }),
       },
     })
+  }
+
+  const updateEditServiceCooperator = (serviceIndex, cooperatorIri) => {
+    setEditForm(current => {
+      if (!current) return current
+
+      const cooperator = missionCooperators.find(item => getIri(item) === cooperatorIri)
+
+      return {
+        ...current,
+        services: current.services.map((service, index) => {
+          if (index !== serviceIndex) {
+            return service
+          }
+
+          if (!cooperator) {
+            const { cooperator: _cooperator, ...serviceWithoutCooperator } = service
+            return serviceWithoutCooperator
+          }
+
+          return {
+            ...service,
+            cooperator,
+          }
+        }),
+      }
+    })
+  }
+
+  const setEditServices = (updateServices) => {
+    setEditForm(current => {
+      if (!current) return current
+
+      const services = updateServices(current.services || [])
+
+      return {
+        ...current,
+        services,
+        duration: calcServicesDuration(services),
+      }
+    })
+  }
+
+  const addEditService = (service) => {
+    setEditServices(services => [
+      ...services,
+      { ...service },
+    ])
+  }
+
+  const removeEditService = (serviceIndex) => {
+    setEditServices(services => services.filter((_service, index) => index !== serviceIndex))
   }
 
   const executePendingAction = async (scope) => {
@@ -1025,12 +1094,14 @@ export default function GridWeek({ mission }) {
                         onClick={() => {
                           const beginDate = occurrence.occurrenceDate
                           setEditingOccurrence(occurrence)
+                          setEditServiceFamily("all")
                           setEditForm({
                             title: occurrence.event.title || "",
                             description: occurrence.event.description || "",
                             beginDate: beginDate.format("YYYY-MM-DDTHH:mm"),
                             duration: getEventDuration(occurrence.event),
                             isAllday: !!occurrence.event.isAllday,
+                            services: (occurrence.event.services || []).map(service => ({ ...service })),
                           })
                         }}
                       >
@@ -1070,7 +1141,7 @@ export default function GridWeek({ mission }) {
           }
         }}
       >
-        <DialogContent>
+        <DialogContent className="max-h-[calc(100vh-100px)] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Modifier l’événement</DialogTitle>
             <DialogDescription>
@@ -1128,6 +1199,156 @@ export default function GridWeek({ mission }) {
                 />
                 Journée entière
               </label>
+              {editForm.services?.length > 0 && (
+                <div className="space-y-3 rounded-md border p-3">
+                  <div>
+                    <Label>Collaborateur</Label>
+                    <p className="text-muted-foreground text-sm">
+                      Attribution des services de l’événement.
+                    </p>
+                  </div>
+                  {editForm.services.map((service, serviceIndex) => (
+                    <div key={`${getServiceKey(service)}_${serviceIndex}`} className="space-y-2 rounded-md bg-muted p-2">
+                      <div className="flex items-center gap-2">
+                        <BadgeStatus status={service.category} label={service.category} />
+                        <div className="grow text-sm">{service.name}</div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 px-2 text-muted-foreground"
+                          onClick={() => removeEditService(serviceIndex)}
+                          aria-label={`Supprimer ${service.name}`}
+                          title={`Supprimer ${service.name}`}
+                        >
+                          <Trash2 className="size-4" />
+                        </Button>
+                      </div>
+                      <Select
+                        value={getIri(service.cooperator) || "unassigned"}
+                        onValueChange={cooperatorIri => updateEditServiceCooperator(serviceIndex, cooperatorIri)}
+                      >
+                        <SelectTrigger className="w-full bg-background">
+                          <SelectValue placeholder="Non attribué" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="unassigned">Non attribué</SelectItem>
+                          {missionCooperators.map(cooperator => {
+                            const iri = getIri(cooperator)
+
+                            return (
+                              <SelectItem key={iri} value={iri}>
+                                {getCooperatorName(cooperator)}
+                              </SelectItem>
+                            )
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  ))}
+                  <div className="space-y-2">
+                    <Label>Ajouter un service</Label>
+                    <Select
+                      value={editServiceFamily}
+                      onValueChange={setEditServiceFamily}
+                    >
+                      <SelectTrigger className="w-full bg-background">
+                        <SelectValue placeholder="Filtrer par famille" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Toutes les familles</SelectItem>
+                        {serviceFamilies.map(family => (
+                          <SelectItem key={family} value={family}>
+                            {family}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <div className="max-h-52 space-y-2 overflow-y-auto rounded-md border bg-background p-2">
+                      {filteredEditServices.map(service => (
+                        <button
+                          key={getServiceKey(service)}
+                          type="button"
+                          className="flex w-full items-start gap-2 rounded-md p-2 text-left text-sm hover:bg-muted"
+                          onClick={() => addEditService(service)}
+                        >
+                          <BadgeStatus status={service.category} label={service.category} />
+                          <span className="min-w-0 flex-1">
+                            <span className="block font-medium">{service.name}</span>
+                            <span className="text-muted-foreground block text-xs">
+                              {service.duration} min
+                            </span>
+                          </span>
+                        </button>
+                      ))}
+                      {isLoadingServices && (
+                        <p className="text-muted-foreground text-sm">
+                          Chargement des services…
+                        </p>
+                      )}
+                      {!isLoadingServices && filteredEditServices.length === 0 && (
+                        <p className="text-muted-foreground text-sm">
+                          Aucun service disponible à ajouter.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                  {missionCooperators.length === 0 && (
+                    <p className="text-muted-foreground text-sm">
+                      Aucun collaborateur n’est associé à la mission.
+                    </p>
+                  )}
+                </div>
+              )}
+              {(!editForm.services || editForm.services.length === 0) && (
+                <div className="space-y-2 rounded-md border p-3">
+                  <Label>Ajouter un service</Label>
+                  <Select
+                    value={editServiceFamily}
+                    onValueChange={setEditServiceFamily}
+                  >
+                    <SelectTrigger className="w-full bg-background">
+                      <SelectValue placeholder="Filtrer par famille" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Toutes les familles</SelectItem>
+                      {serviceFamilies.map(family => (
+                        <SelectItem key={family} value={family}>
+                          {family}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <div className="max-h-52 space-y-2 overflow-y-auto rounded-md border bg-background p-2">
+                    {filteredEditServices.map(service => (
+                      <button
+                        key={getServiceKey(service)}
+                        type="button"
+                        className="flex w-full items-start gap-2 rounded-md p-2 text-left text-sm hover:bg-muted"
+                        onClick={() => addEditService(service)}
+                      >
+                        <BadgeStatus status={service.category} label={service.category} />
+                        <span className="min-w-0 flex-1">
+                          <span className="block font-medium">{service.name}</span>
+                          <span className="text-muted-foreground block text-xs">
+                            {service.duration} min
+                          </span>
+                        </span>
+                      </button>
+                    ))}
+                    {isLoadingServices && (
+                      <p className="text-muted-foreground text-sm">
+                        Chargement des services…
+                      </p>
+                    )}
+                    {!isLoadingServices && filteredEditServices.length === 0 && (
+                      <p className="text-muted-foreground text-sm">
+                        Aucun service disponible à ajouter.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
           )}
           <DialogFooter>

@@ -7,6 +7,7 @@ import FormSelect from "@/components/form/form-select";
 import FormTextarea from "@/components/form/form-textarea";
 import { Button } from "@/components/ui/button";
 import { Form, FormItem, FormLabel } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { useGetCollection, useGetIRI, usePatchQuery, usePostQuery } from "@/hooks/useQuery";
 import { prescriptionFormSchema } from "@/utils/zodSchemas";
@@ -60,7 +61,7 @@ const PrescriptionForm = () => {
 
   //console.log('fields', fields)
 
-  const handleAddService = (service) => {
+  const handleAddService = (service: any) => {
     prepend({ ...service, "periodicity": "period", "duration": service.duration, "frequency": 1 })
   }
 
@@ -97,6 +98,7 @@ const PrescriptionForm = () => {
 
 
   const [category, setCategory] = useState<string>("Evaluation - Conseil - Coordination");
+  const [serviceSearch, setServiceSearch] = useState("");
 
   const categories = services?.["member"]?.reduce((acc: string[], service: any) => {
     if (service.family && !acc.includes(service.family)) {
@@ -106,6 +108,15 @@ const PrescriptionForm = () => {
   }, [])?.sort() || [];
 
   console.log('categories', categories)
+
+  const normalizedServiceSearch = serviceSearch.trim().toLocaleLowerCase("fr");
+  const filteredServices = services?.member?.filter((service: any) => {
+    const matchesCategory = category === "" || service.family === category;
+    const matchesSearch = normalizedServiceSearch === ""
+      || service.name?.toLocaleLowerCase("fr").includes(normalizedServiceSearch);
+
+    return matchesCategory && matchesSearch;
+  }) || [];
 
   if (isLoading || isLoadingServices || isError || isErrorServices || isLoadingMission) return <Spinner />
 
@@ -180,8 +191,15 @@ const PrescriptionForm = () => {
           <FormLabel>Services prescrits</FormLabel>
           <div className="flex w-full gap-4 border-input placeholder:text-muted-foreground dark:bg-input/30 rounded-md border bg-transparent p-3 text-base shadow-xs outline-none md:text-sm">
             <div className="basis-1/2 space-y-4">
+              <Input
+                type="search"
+                value={serviceSearch}
+                onChange={(event) => setServiceSearch(event.target.value)}
+                placeholder="Rechercher un service par nom"
+                aria-label="Rechercher un service par nom"
+              />
               <div className="flex gap-2 flex-wrap">
-                {categories?.map((cat) => (
+                {categories?.map((cat: string) => (
                   <Button
                     type="button"
                     key={cat}
@@ -203,7 +221,7 @@ const PrescriptionForm = () => {
               </div>
 
               <div className="font-semibold text-sm mb-2">{category === "" ? "Tous les services" : category}</div>
-              {services?.member?.filter((service) => category === "" || service.family === category).map((service) => (
+              {filteredServices.map((service: any) => (
                 <div key={service.id} className="mb-4"
                   onClick={() => handleAddService(service)}>
                   <div className="flex gap-2 cursor-pointer">
@@ -211,6 +229,11 @@ const PrescriptionForm = () => {
                     <span>-</span>{service.name}
                   </div>
                 </div>)
+              )}
+              {filteredServices.length === 0 && (
+                <p className="text-muted-foreground text-sm">
+                  Aucun service ne correspond à la recherche.
+                </p>
               )}
 
             </div>

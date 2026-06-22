@@ -92,10 +92,10 @@ export default function OpasActions({ missionUUID, opasIRI, isCompact = false, i
           <>
             {isActions &&
               <>
-                <DropdownMenuItem onClick={() => router.push(`/application/${opasIRI}/view`, { scroll: false })}>
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/application/${opasIRI}/view?onepage=true`, { scroll: false }) }}>
                   OPAS simplifié
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push(`/application/${opasIRI}/view`, { scroll: false })}>
+                <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/application/${opasIRI}/view`, { scroll: false }) }}>
                   OPAS détaillé
                 </DropdownMenuItem>
                 {data.planned ? (
@@ -103,7 +103,7 @@ export default function OpasActions({ missionUUID, opasIRI, isCompact = false, i
                     Planification effectuée
                   </DropdownMenuItem>
                 ) : (
-                  <DropdownMenuItem onClick={() => router.push(`/application/${opasIRI}/planify?date=${dayjs(data.beginDate).format('YYYY-MM-DD')}`, { scroll: false })}>
+                  <DropdownMenuItem onClick={(e) => { e.stopPropagation(); router.push(`/application/${opasIRI}/planify?date=${dayjs(data.beginDate).format('YYYY-MM-DD')}`, { scroll: false }) }}>
                     Planifier
                   </DropdownMenuItem>
                 )}
@@ -111,23 +111,23 @@ export default function OpasActions({ missionUUID, opasIRI, isCompact = false, i
               </>
             }
             <DropdownMenuLabel>Statut de l'OPAS</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleChangeStatus('BROUILLON')}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleChangeStatus('BROUILLON') }}>
               <BadgeStatus status="BROUILLON" />
               Brouillon
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleChangeStatus('ENVOYE_AU_MEDECIN')}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleChangeStatus('ENVOYE_AU_MEDECIN') }}>
               <BadgeStatus status="ENVOYE_AU_MEDECIN" />
               Envoyé au médecin
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleChangeStatus('VALIDE_PAR_LE_MEDECIN')}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleChangeStatus('VALIDE_PAR_LE_MEDECIN') }}>
               <BadgeStatus status="VALIDE_PAR_LE_MEDECIN" />
               Validé par le médecin
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleChangeStatus('ENVOYE_A_L_ASSURANCE')}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleChangeStatus('ENVOYE_A_L_ASSURANCE') }}>
               <BadgeStatus status="ENVOYE_A_L_ASSURANCE" />
               Envoyé à l'assurance
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleChangeStatus('CONTESTE_PAR_L_ASSURANCE')}>
+            <DropdownMenuItem onClick={(e) => { e.stopPropagation(); handleChangeStatus('CONTESTE_PAR_L_ASSURANCE') }}>
               <BadgeStatus status="CONTESTE_PAR_L_ASSURANCE" />
               Contesté par l'assurance
             </DropdownMenuItem>

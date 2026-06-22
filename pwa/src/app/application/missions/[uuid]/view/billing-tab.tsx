@@ -163,7 +163,7 @@ export default function BillingTab({
       }
     }
 
-    const all = [...users.values()]
+    const all = Array.from(users.values())
 
     return {
       owner: all.find(summary => summary.role === "referent"),

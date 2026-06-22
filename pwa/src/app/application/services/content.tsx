@@ -18,9 +18,19 @@ import {
 } from "@/components/ui/table";
 import useInfiniteScroll from "@/hooks/useInfiniteScroll";
 import { useGetIRI } from "@/hooks/useQuery";
-import { CategoryInterface } from "@/utils/types.utils";
 import { MoreHorizontal } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
+
+type ServiceRow = {
+	id: number;
+	"@id": string;
+	name: string;
+	family: string;
+	category: string;
+	actNumber: number;
+	opas: string;
+	duration: number;
+};
 
 const Content = () => {
 
@@ -83,7 +93,7 @@ const Content = () => {
 }
 
 const Row = ({ data, lastElementRef }: {
-	data: CategoryInterface, lastElementRef: (node: HTMLTableRowElement) => void
+	data: ServiceRow, lastElementRef: (node: HTMLTableRowElement) => void
 }) => {
 
 	const router = useRouter()

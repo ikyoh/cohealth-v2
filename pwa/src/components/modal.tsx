@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import React, { PropsWithChildren } from "react";
+import { PropsWithChildren } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogOverlay, DialogTitle } from "./ui/dialog";
 
 
@@ -28,9 +28,7 @@ export default function Modal({ children, title, description }: Props) {
             </DialogDescription>
           </DialogHeader>
           <div className="p-3">
-            {React.isValidElement(children)
-              ? React.cloneElement(children as React.ReactElement<any>, { handleOpenChange })
-              : children}
+            {children}
           </div>
         </DialogContent>
       </DialogOverlay>

@@ -7,8 +7,13 @@ const client = axios.create({ baseURL: API_URL });
 export const request = async ({
   method = "get",
   headers = {},
-  data,
+  data = undefined,
   ...options
+}: {
+  method?: string;
+  headers?: Record<string, string>;
+  data?: any;
+  [key: string]: any;
 }) => {
   const token = getAuthToken();
 

@@ -11,7 +11,7 @@ const useInfiniteScroll = ({
   search?: string;
   filters?: string;
 }) => {
-  const observer = useRef<IntersectionObserver>();
+  const observer = useRef<IntersectionObserver | null>(null);
 
   const searchParams = useSearchParams();
 
@@ -46,7 +46,7 @@ const useInfiniteScroll = ({
   );
 
   const datas = useMemo(() => {
-    return data?.pages.reduce((acc, page) => {
+    return data?.pages.reduce<any[]>((acc, page) => {
       return [...acc, ...page["member"]];
     }, []);
   }, [data]);

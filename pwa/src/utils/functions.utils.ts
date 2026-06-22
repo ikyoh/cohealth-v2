@@ -1,34 +1,19 @@
 import dayjs from "@/utils/dayjs.config";
 
-export const removeDuplicates = (array: []) => {
-  return array.reduce(
-    (accumulator, currentValue) =>
-      accumulator.includes(currentValue)
-        ? accumulator
-        : [...accumulator, currentValue],
-    []
-  );
+export const removeDuplicates = <T>(array: T[]): T[] => {
+  return Array.from(new Set(array));
 };
 
-export const arrayOfIris = (array: []) => {
-  return array.reduce(
-    (accumulator, currentValue) => [...accumulator, currentValue["@id"]],
-    []
-  );
+export const arrayOfIris = <T extends { "@id": string }>(array: T[]): string[] => {
+  return array.map((currentValue) => currentValue["@id"]);
 };
 
-export const arrayOfParam = (array: [], param: string) => {
-  return array.reduce(
-    (accumulator, currentValue) => [...accumulator, currentValue[param]],
-    []
-  );
+export const arrayOfParam = <T extends Record<string, any>>(array: T[], param: string): any[] => {
+  return array.map((currentValue) => currentValue[param]);
 };
 
-export const arrayOfIds = (array: []) => {
-  return array.reduce(
-    (accumulator, currentValue) => [...accumulator, currentValue.id],
-    []
-  );
+export const arrayOfIds = <T extends { id: number | string }>(array: T[]): Array<number | string> => {
+  return array.map((currentValue) => currentValue.id);
 };
 
 export const roundPrice = (price: number) => {
@@ -75,19 +60,19 @@ export const replaceObjectsByIri = (obj: any): any => {
   return transformed;
 };
 
-export const calcNumberOfDays = (beginAt, endAt) => {
+export const calcNumberOfDays = (beginAt: string | Date, endAt: string | Date) => {
   const begin = dayjs(beginAt);
   const end = dayjs(endAt).add(1, "day");
   return end.diff(begin, "days");
 };
 
-export const calcNumberOfWeeks = (beginAt, endAt) => {
+export const calcNumberOfWeeks = (beginAt: string | Date, endAt: string | Date) => {
   const begin = dayjs(beginAt);
   const end = dayjs(endAt);
   return end.diff(begin, "weeks") + 1;
 };
 
-export const calcNumberOfMonths = (beginAt, endAt) => {
+export const calcNumberOfMonths = (beginAt: string | Date, endAt: string | Date) => {
   const begin = dayjs(beginAt);
   const end = dayjs(endAt);
   return end.diff(begin, "months") + 1;
@@ -95,7 +80,19 @@ export const calcNumberOfMonths = (beginAt, endAt) => {
 
 // services = selected services {}
 // category = "A" || "B" || "C" || "N"
-export const calcABCN = (category, services, beginAt, endAt) => {
+type ServiceWithPeriodicity = {
+  category: string;
+  duration: number | string;
+  frequency: number | string;
+  periodicity: string;
+};
+
+export const calcABCN = (
+  category: string,
+  services: ServiceWithPeriodicity[],
+  beginAt: string | Date,
+  endAt: string | Date
+) => {
   let filteredServices = services.filter(
     (service) => service.category === category
   );
@@ -130,11 +127,11 @@ export const calcABCN = (category, services, beginAt, endAt) => {
   return total;
 };
 
-export const calcMinutestoHours = (minutes) => {
+export const calcMinutestoHours = (minutes: number) => {
   return Math.round((minutes * 100) / 60) / 100;
 };
 
-export const firstLetterUppercase = (string) => {
+export const firstLetterUppercase = (string: string) => {
   return string.charAt(0).toUpperCase() + string.slice(1);
 };
 

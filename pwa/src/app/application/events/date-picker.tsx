@@ -26,7 +26,8 @@ export function DatePicker() {
   )
 
   useEffect(() => {
-    const dateParam = searchParams.get('date') ? new Date(searchParams.get('date')) : new Date()
+    const selectedDate = searchParams.get('date')
+    const dateParam = selectedDate ? new Date(selectedDate) : new Date()
     setDate(dateParam)
   }, [])
 

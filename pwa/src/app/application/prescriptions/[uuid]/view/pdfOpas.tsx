@@ -24,10 +24,27 @@ type PdfOpasProps = {
   patient: any;
   principal: any;
   insurance: any;
-  isPDFDownload?: boolean;
-  isPDFViewer?: boolean;
   isOnePage?: boolean;
   cooperators: any[];
+};
+
+type OpasService = {
+  opas: string;
+  category: string;
+  duration: number | string;
+  frequency: number | string;
+  periodicity: string;
+  actNumber?: number | string;
+  name?: string;
+};
+
+type DisplayedCare = {
+  act: string;
+  description: string;
+  display: boolean;
+  totalTime?: number;
+  frequency?: number | string;
+  periodicity?: string;
 };
 
 const dpi = 72;
@@ -160,7 +177,7 @@ const Separator = () => {
   return <View style={styles.separator}></View>;
 };
 
-const cares = [
+const cares: DisplayedCare[] = [
   {
     act: "let. a ch. 1",
     description:
@@ -276,19 +293,19 @@ const cares = [
   },
 ];
 
-const translatePrescription = {
+const translatePrescription: Record<string, string> = {
   "prescription": "Prescription initiale",
   "revaluation": "Réévaluation",
   "complementary": "Complément d'OPAS"
 }
 
-const translateCase = {
+const translateCase: Record<string, string> = {
   disease: "Maladie",
   accident: "Accident",
   invalidity: "Invalidité"
 }
 
-const translatePeriod = {
+const translatePeriod: Record<string, string> = {
   daily: "jour",
   weekly: "semaine",
   monthly: "mois",
@@ -303,33 +320,31 @@ const PdfOpas = ({
   principal,
   insurance,
   cooperators = [],
-  isPDFDownload = true,
-  isPDFViewer = false,
   isOnePage = false,
 }: PdfOpasProps) => {
 
   const fileName = "Opas_" + dayjs().format("DD-MM-YYYY");
 
-  console.log('cooperators', cooperators)
+
   const totalA = calcABCN(
     "A",
     prescription.content.services,
-    mission.beginAt,
-    mission.endAt
+    mission.beginDate,
+    mission.endDate
   );
   const totalAHours = calcMinutestoHours(totalA);
   const totalB = calcABCN(
     "B",
     prescription.content.services,
-    mission.beginAt,
-    mission.endAt
+    mission.beginDate,
+    mission.endDate
   );
   const totalBHours = calcMinutestoHours(totalB);
   const totalC = calcABCN(
     "C",
     prescription.content.services,
-    mission.beginAt,
-    mission.endAt
+    mission.beginDate,
+    mission.endDate
   );
   const totalCHours = calcMinutestoHours(totalC);
 
@@ -404,8 +419,7 @@ const PdfOpas = ({
     let displayed = "";
     cooperators.forEach((c) => {
       displayed += c.firstname + " " + c.lastname;
-      displayed += "\n";
-      displayed += "RCC: " + c.rcc;
+      displayed += " - RCC: " + c.rcc;
       displayed += "\n";
     });
     return displayed;
@@ -414,19 +428,25 @@ const PdfOpas = ({
   const displayedCares = () => {
     let displayed = [...cares];
 
-    prescription.content.services.forEach((service) => {
+    prescription.content.services.forEach((service: OpasService) => {
       let index = cares.findIndex((obj) => obj.act === service.opas);
-      if (displayed[index].display === false) {
-        displayed[index].display = true;
-        displayed[index].totalTime = calcTotalServiceTime(service);
-        displayed[index].frequency = service.frequency;
-        displayed[index].periodicity = service.periodicity;
+      if (index === -1 || !displayed[index]) {
+        return;
+      }
+
+      const displayedCare = displayed[index]!;
+
+      if (displayedCare.display === false) {
+        displayedCare.display = true;
+        displayedCare.totalTime = calcTotalServiceTime(service);
+        displayedCare.frequency = service.frequency;
+        displayedCare.periodicity = service.periodicity;
       } else if (
-        displayed[index].totalTime < calcTotalServiceTime(service)
+        (displayedCare.totalTime ?? 0) < calcTotalServiceTime(service)
       ) {
-        displayed[index].totalTime = calcTotalServiceTime(service);
-        displayed[index].frequency = service.frequency;
-        displayed[index].periodicity = service.periodicity;
+        displayedCare.totalTime = calcTotalServiceTime(service);
+        displayedCare.frequency = service.frequency;
+        displayedCare.periodicity = service.periodicity;
       }
     });
 
@@ -435,31 +455,32 @@ const PdfOpas = ({
     return displayed.filter((c) => c.display === true);
   };
 
-  const groupedServices = (groupBy) => {
-    return prescription.content.services.filter((f) => f.category === groupBy);
+  const groupedServices = (groupBy: string): OpasService[] => {
+    return prescription.content.services.filter((f: OpasService) => f.category === groupBy);
   };
 
-  const calcTotalServiceTime = (service) => {
+  const calcTotalServiceTime = (service: OpasService): number => {
     if (service.periodicity === "period")
       return Number(service.duration) * Number(service.frequency);
     if (service.periodicity === "daily")
       return (
         Number(service.duration) *
         Number(service.frequency) *
-        calcNumberOfDays(mission.beginAt, mission.endAt)
+        calcNumberOfDays(mission.beginDate, mission.endDate)
       );
     if (service.periodicity === "weekly")
       return (
         Number(service.duration) *
         Number(service.frequency) *
-        calcNumberOfWeeks(mission.beginAt, mission.endAt)
+        calcNumberOfWeeks(mission.beginDate, mission.endDate)
       );
     if (service.periodicity === "monthly")
       return (
         Number(service.duration) *
         Number(service.frequency) *
-        calcNumberOfMonths(mission.beginAt, mission.endAt)
+        calcNumberOfMonths(mission.beginDate, mission.endDate)
       );
+    return 0;
   };
 
   return (
@@ -561,11 +582,11 @@ const PdfOpas = ({
                 }}
               >
                 Période :{" "}
-                {dayjs(mission.beginAt).format("L")} au{" "}
-                {dayjs(mission.endAt).format("L") + " "}(
+                {dayjs(mission.beginDate).format("L")} au{" "}
+                {dayjs(mission.endDate).format("L") + " "}(
                 {calcNumberOfDays(
-                  mission.beginAt,
-                  mission.endAt
+                  mission.beginDate,
+                  mission.endDate
                 )}{" "}
                 jours)
               </Text>
@@ -597,7 +618,6 @@ const PdfOpas = ({
             <Text
               style={{
                 ...styles.text,
-                whiteSpace: "pre-line",
                 paddingHorizontal: 2,
                 paddingVertical: 2,
               }}
@@ -611,7 +631,6 @@ const PdfOpas = ({
           <Text
             style={{
               ...styles.text,
-              whiteSpace: "pre-line",
               paddingHorizontal: 2,
               paddingVertical: 2,
             }}
@@ -664,7 +683,7 @@ const PdfOpas = ({
                     }}
                   >
                     {displayedCare.frequency}x /{" "}
-                    {translatePeriod[displayedCare.periodicity]}
+                    {translatePeriod[displayedCare.periodicity || ""] || displayedCare.periodicity}
                   </Text>
                 </View>
               ))}
@@ -906,12 +925,12 @@ const PdfOpas = ({
                   }}
                 >
                   Période :{" "}
-                  {dayjs(mission.beginAt).format("L")} au{" "}
-                  {dayjs(mission.endAt).format("L") + " "}
+                  {dayjs(mission.beginDate).format("L")} au{" "}
+                  {dayjs(mission.endDate).format("L") + " "}
                   (
                   {calcNumberOfDays(
-                    mission.beginAt,
-                    mission.endAt
+                    mission.beginDate,
+                    mission.endDate
                   )}{" "}
                   jours)
                 </Text>

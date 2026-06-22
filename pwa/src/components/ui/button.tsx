@@ -52,7 +52,11 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
       return (
         <Slot ref={ref} {...props}>
           <>
-            {React.Children.map(children as React.ReactElement, (child: React.ReactElement) => {
+            {React.Children.map(children, (child) => {
+              if (!React.isValidElement<{ className?: string; children?: React.ReactNode }>(child)) {
+                return child;
+              }
+
               return React.cloneElement(child, {
                 className: cn(buttonVariants({ variant, size }), className),
                 children: (
@@ -88,4 +92,3 @@ const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
 Button.displayName = 'Button';
 
 export { Button, buttonVariants };
-

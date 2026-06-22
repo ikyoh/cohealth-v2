@@ -1,19 +1,19 @@
 "use client"
 
 import { useState } from "react"
-import type { DateValue } from "react-aria-components"
 
-import { Calendar } from "@/components/ui/calendar-rac"
+import { Calendar } from "@/components/ui/calendar"
 
 export default function DatePicker() {
-    const [date, setDate] = useState<DateValue | null>()
+    const [date, setDate] = useState<Date | undefined>()
 
     return (
         <div>
             <Calendar
+                mode="single"
                 className="rounded-md border p-2"
-                value={date}
-                onChange={setDate}
+                selected={date}
+                onSelect={setDate}
             />
             <p
                 className="text-muted-foreground mt-4 text-center text-xs"

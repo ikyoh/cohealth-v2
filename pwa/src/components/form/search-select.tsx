@@ -45,6 +45,15 @@ type FormSelectProps = {
   className?: string;
 };
 
+type SearchItemSource = Record<string, any> & {
+  "@id": string;
+};
+
+type SearchItem = {
+  label: string;
+  value: string;
+};
+
 export default function SearchSelect({ defaultIRI = "", form, name, entity, labels, title, placeholder, searchPlaceholder, required, description, className }: FormSelectProps) {
 
   const [open, setOpen] = useState(false)
@@ -56,7 +65,7 @@ export default function SearchSelect({ defaultIRI = "", form, name, entity, labe
   const { data, isLoading: isGetIRILoading } = useGetIRI(defaultIRI ? defaultIRI : "")
 
   const stockedItems = useMemo(() => {
-    const items = datas?.map(data => ({
+    const items: SearchItem[] = datas?.map((data: SearchItemSource) => ({
       label: labels.map(field => data[field]).filter(Boolean).join(' '),
       value: data["@id"]
     })) || []
@@ -66,7 +75,7 @@ export default function SearchSelect({ defaultIRI = "", form, name, entity, labe
         label: labels.map(field => data[field]).filter(Boolean).join(' '),
         value: data["@id"]
       }
-      const isDefaultInItems = items.some(item => item.value === defaultItem.value);
+      const isDefaultInItems = items.some((item: SearchItem) => item.value === defaultItem.value);
       if (!isDefaultInItems) {
         items.unshift(defaultItem);
       }
@@ -118,7 +127,7 @@ export default function SearchSelect({ defaultIRI = "", form, name, entity, labe
                   <CommandInput
                     placeholder={searchPlaceholder}
                     className="h-6 ring-0 border-muted"
-                    onValueChange={(value) => setSearch(value)}
+                    onValueChange={(value: string) => setSearch(value)}
                     value={search}
                   />
                   <CommandList>

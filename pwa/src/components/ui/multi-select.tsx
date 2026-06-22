@@ -69,7 +69,7 @@ export function MultiSelect({
       return newSet
     }
     setInternalValues(getNewSet)
-    onValuesChange?.([...getNewSet(selectedValues)])
+    onValuesChange?.(Array.from(getNewSet(selectedValues)))
   }
 
   const onItemAdded = useCallback((value: string, label: ReactNode) => {
@@ -207,7 +207,7 @@ export function MultiSelectValue({
         className,
       )}
     >
-      {[...selectedValues]
+      {Array.from(selectedValues)
         .filter(value => items.has(value))
         .map(value => (
           <Badge

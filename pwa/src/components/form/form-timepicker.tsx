@@ -21,18 +21,28 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 
+const DEFAULT_HOUR = 8;
+
+const getDefaultTime = () => {
+    const date = new Date();
+    date.setHours(DEFAULT_HOUR, 0, 0, 0);
+
+    return date;
+};
 
 export default function FormTimePicker({ name, title, placeholder, form, description, required }: any) {
 
 
     function handleDateSelect(date: Date | undefined) {
         if (date) {
-            form.setValue(name, dayjs(date).add(6, 'hours').toDate());
+            const newDate = new Date(date);
+            newDate.setHours(DEFAULT_HOUR, 0, 0, 0);
+            form.setValue(name, newDate);
         }
     }
 
     function handleTimeChange(type: "hour" | "minute", value: string) {
-        const currentDate = form.getValues(name) || new Date();
+        const currentDate = form.getValues(name) || getDefaultTime();
         let newDate = new Date(currentDate);
 
         if (type === "hour") {
@@ -144,4 +154,3 @@ export default function FormTimePicker({ name, title, placeholder, form, descrip
 
     );
 }
-

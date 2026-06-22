@@ -40,7 +40,7 @@ const CategoryForm = ({ iri }: Props) => {
     type FormSchema = z.infer<typeof serviceFormSchema>;
 
     const form = useForm<FormSchema>({
-        resolver: zodResolver(serviceFormSchema),
+        resolver: zodResolver(serviceFormSchema) as any,
         defaultValues: {
             name: "",
             family: "",
@@ -71,7 +71,7 @@ const CategoryForm = ({ iri }: Props) => {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-md" >
+            <form onSubmit={form.handleSubmit(onSubmit as any)} className="space-y-8 max-w-md" >
                 <FormTextarea
                     form={form}
                     name="name"

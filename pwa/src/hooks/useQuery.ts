@@ -60,9 +60,9 @@ const entityFromIRI = (iri: string) => {
   return match ? match[1] : null;
 };
 
-function remove_uuid(data, uuid) {
+function remove_uuid(data: any[], uuid: string) {
   return data.filter(
-    (x) => x["hydra:member"].filter((y) => y["@id"].includes(uuid)).length == 0
+    (x: any) => x["hydra:member"].filter((y: any) => y["@id"].includes(uuid)).length == 0
   );
 }
 

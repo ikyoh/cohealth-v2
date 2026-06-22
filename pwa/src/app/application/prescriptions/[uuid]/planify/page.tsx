@@ -11,7 +11,7 @@ export default function EditPrescriptionPage() {
       <PageContent title="Planification">
         <ViewWeek />
       </PageContent>
-      <SidebarRight>
+      <SidebarRight className="w-sm p-3 overflow-y-auto h-screen sticky top-0">
         <Form />
       </SidebarRight>
     </>

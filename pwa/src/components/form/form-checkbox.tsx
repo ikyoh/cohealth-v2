@@ -59,7 +59,7 @@ export default function FormCheckbox({ form, name, title, items, description }: 
                                                         ? field.onChange([...field.value, item.id])
                                                         : field.onChange(
                                                             field.value?.filter(
-                                                                (value) => value !== item.id
+                                                                (value: string) => value !== item.id
                                                             )
                                                         )
                                                 }}

@@ -30,6 +30,7 @@ type FormSelectProps = {
   items: FormSelectItem[];
   description?: string;
   required?: boolean;
+  className?: string;
 };
 
 

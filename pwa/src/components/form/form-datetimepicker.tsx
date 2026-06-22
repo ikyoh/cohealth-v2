@@ -22,18 +22,40 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/utils/utils";
 import dayjs from "dayjs";
 
+const DEFAULT_HOUR = 8;
+
+const getDefaultDateTime = () => {
+    const date = new Date();
+    date.setHours(DEFAULT_HOUR, 0, 0, 0);
+
+    return date;
+};
 
 export default function FormDateTimePicker({ name, title, placeholder, form, description, required }: any) {
 
 
     function handleDateSelect(date: Date | undefined) {
         if (date) {
-            form.setValue(name, dayjs(date).add(6, 'hours').toDate());
+            const currentDate = form.getValues(name);
+            const selectedDate = new Date(date);
+
+            selectedDate.setHours(
+                currentDate ? dayjs(currentDate).hour() : DEFAULT_HOUR,
+                currentDate ? dayjs(currentDate).minute() : 0,
+                0,
+                0,
+            );
+
+            form.setValue(name, selectedDate, {
+                shouldDirty: true,
+                shouldTouch: true,
+                shouldValidate: true,
+            });
         }
     }
 
     function handleTimeChange(type: "hour" | "minute", value: string) {
-        const currentDate = form.getValues(name) || new Date();
+        const currentDate = form.getValues(name) || getDefaultDateTime();
         let newDate = new Date(currentDate);
 
         if (type === "hour") {
@@ -43,7 +65,12 @@ export default function FormDateTimePicker({ name, title, placeholder, form, des
             newDate.setMinutes(parseInt(value, 10));
         }
 
-        form.setValue(name, newDate);
+        newDate.setSeconds(0, 0);
+        form.setValue(name, newDate, {
+            shouldDirty: true,
+            shouldTouch: true,
+            shouldValidate: true,
+        });
     }
 
     return (
@@ -86,6 +113,7 @@ export default function FormDateTimePicker({ name, title, placeholder, form, des
                                             {Array.from({ length: 24 }, (_, i) => i)
                                                 .map((hour) => (
                                                     <Button
+                                                        type="button"
                                                         key={hour}
                                                         size="icon"
                                                         variant={
@@ -110,6 +138,7 @@ export default function FormDateTimePicker({ name, title, placeholder, form, des
                                             {Array.from({ length: 4 }, (_, i) => i * 15).map(
                                                 (minute) => (
                                                     <Button
+                                                        type="button"
                                                         key={minute}
                                                         size="icon"
                                                         variant={
@@ -143,5 +172,4 @@ export default function FormDateTimePicker({ name, title, placeholder, form, des
 
     );
 }
-
 
